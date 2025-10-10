@@ -1,323 +1,344 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Drive Folder Viewer</title>
-<style>
-  body {
-    margin: 0;
-    padding: 20px;
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(135deg, #e0f7fa, #bbdefb);
-    color: #0d47a1;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drive Folder Viewer + More Features</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #E6E6F2, #C5CAE9);
+      margin: 0;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #0d47a1;
+      margin-bottom: 10px;
+      font-size: 22px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .toolbar input[type="text"], .toolbar select, .toolbar button.toggle {
+      padding: 8px 12px;
+      border: 1px solid #90caf9;
+      border-radius: 20px;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+    .toolbar input[type="text"]:focus {
+      box-shadow: 0 0 8px rgba(33,150,243,0.4);
+    }
+    .toolbar button.toggle {
+      background: linear-gradient(135deg, #2196f3, #1565c0);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    .toolbar select:hover, .toolbar button.toggle:hover {
+      opacity: 0.9;
+    }
 
-  h2 {
-    text-align: center;
-    font-size: 24px;
-    color: #0d47a1;
-    font-weight: 700;
-    margin-bottom: 15px;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
+    .grid, .list {
+      display: grid;
+      gap: 16px;
+      animation: fadeIn 0.6s ease;
+    }
+    .grid {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+    .list {
+      grid-template-columns: 1fr;
+    }
+    .file-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .list .file-card {
+      flex-direction: row;
+      align-items: center;
+    }
+    .file-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(33,150,243,0.2);
+    }
+    .file-card img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 10px;
+      transition: transform 0.3s;
+    }
+    .list .file-card img {
+      margin: 0 15px 0 0;
+    }
+    .file-card:hover img {
+      transform: scale(1.1);
+    }
+    .file-card .info {
+      padding: 0 10px 10px;
+      text-align: center;
+    }
+    .list .file-card .info {
+      text-align: left;
+      padding: 0;
+      flex: 1;
+    }
+    .file-card h4 {
+      font-size: 14px;
+      color: #1e3a8a;
+      margin: 5px 0;
+      height: 40px;
+      overflow: hidden;
+    }
+    .file-card .meta {
+      font-size: 12px;
+      color: #666;
+    }
+    .file-card .view-btn {
+      background: linear-gradient(135deg, #2196f3, #0d47a1);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 12px;
+      margin: 8px 0;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .file-card .view-btn:hover {
+      background: linear-gradient(135deg, #1976d2, #0a369d);
+      transform: scale(1.05);
+    }
 
-  .toolbar {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 25px;
-  }
+    .loader {
+      text-align: center;
+      margin-top: 40px;
+      color: #444;
+    }
 
-  input, select, button {
-    padding: 10px 14px;
-    border-radius: 30px;
-    border: 1px solid #90caf9;
-    outline: none;
-    transition: 0.3s;
-    font-size: 14px;
-  }
+    /* Modal */
+    #pdfModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      animation: fadeIn 0.4s ease;
+    }
+    .pdf-viewer {
+      width: 90%;
+      height: 90%;
+      background: #fff;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      animation: scaleIn 0.4s ease;
+    }
+    .pdf-viewer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .close-btn:hover {
+      background: #dc2626;
+    }
 
-  input {
-    width: 220px;
-  }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
 
-  input:focus {
-    box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
-  }
-
-  button {
-    cursor: pointer;
-    background: linear-gradient(135deg, #2196f3, #1565c0);
-    color: #fff;
-    border: none;
-    font-weight: 600;
-  }
-
-  button:hover {
-    background: linear-gradient(135deg, #1976d2, #0a369d);
-  }
-
-  .grid, .list {
-    display: grid;
-    gap: 16px;
-    animation: fadeIn 0.6s ease;
-  }
-
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-
-  .list {
-    grid-template-columns: 1fr;
-  }
-
-  .file {
-    background: rgba(255,255,255,0.8);
-    border-radius: 18px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
-    padding: 14px;
-    text-align: center;
-    transition: 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .file:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(33, 150, 243, 0.2);
-  }
-
-  .file img {
-    width: 70px;
-    height: 70px;
-    margin-bottom: 8px;
-  }
-
-  .file h4 {
-    font-size: 14px;
-    margin: 5px 0;
-    color: #0d47a1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .view-btn {
-    background: #2196f3;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 12px;
-    margin-top: 6px;
-    transition: 0.3s;
-  }
-
-  .view-btn:hover {
-    background: #1976d2;
-  }
-
-  .copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    background: rgba(255,255,255,0.6);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    padding: 4px 7px;
-    transition: 0.3s;
-  }
-
-  .copy-btn:hover {
-    background: #bbdefb;
-  }
-
-  .loader {
-    text-align: center;
-    font-size: 16px;
-    color: #1976d2;
-    margin-top: 40px;
-  }
-
-  /* Modal */
-  #pdfModal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-  }
-
-  .pdf-viewer {
-    width: 90%;
-    height: 90%;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .pdf-viewer iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-
-  .close-btn {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-
-  .file-count {
-    text-align: center;
-    color: #333;
-    font-size: 13px;
-    margin-top: 5px;
-  }
-
-  @keyframes fadeIn {
-    from {opacity:0; transform: translateY(10px);}
-    to {opacity:1; transform: translateY(0);}
-  }
-
-  @media (max-width: 480px) {
-    input { width: 160px; }
-    h2 { font-size: 18px; }
-  }
-</style>
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .toolbar input[type="text"], .toolbar select, .toolbar button.toggle {
+        width: 90%;
+        font-size: 12px;
+      }
+      h2 {
+        font-size: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<h2>📁 Google Drive Viewer</h2>
+  <h2>📁 Drive Folder Viewer</h2>
 
-<div class="toolbar">
-  <input type="text" id="searchBox" placeholder="Search files...">
-  <select id="sortSelect">
-    <option value="az">A → Z</option>
-    <option value="za">Z → A</option>
-    <option value="date">Newest</option>
-  </select>
-  <button id="toggleViewBtn">🔳 Grid</button>
-</div>
-
-<div id="fileContainer" class="grid"></div>
-<p class="file-count" id="fileCount"></p>
-
-<!-- Modal -->
-<div id="pdfModal">
-  <div class="pdf-viewer">
-    <button class="close-btn" onclick="closePDF()">✖</button>
-    <iframe id="pdfFrame"></iframe>
+  <div class="toolbar">
+    <input type="text" id="searchBox" placeholder="Search files...">
+    <select id="filterType">
+      <option value="all">Filter: All Files</option>
+      <option value="pdf">PDFs Only</option>
+      <option value="image">Images Only</option>
+      <option value="docs">Docs / Other</option>
+    </select>
+    <select id="sortSelect">
+      <option value="az">Sort: A → Z</option>
+      <option value="za">Sort: Z → A</option>
+    </select>
+    <button class="toggle" id="toggleViewBtn">List View</button>
   </div>
-</div>
 
-<script>
-  const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
-  const folderId = new URLSearchParams(window.location.search).get("folder");
-  if (!folderId) {
-    document.body.innerHTML = "<h3 style='text-align:center;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
-  } else {
-    loadFiles(folderId);
-  }
+  <div id="fileContainer" class="grid"></div>
 
-  let allFiles = [];
-  let gridView = true;
+  <!-- PDF Modal -->
+  <div id="pdfModal">
+    <div class="pdf-viewer">
+      <button class="close-btn" onclick="closePDF()">✖</button>
+      <iframe id="pdfFrame"></iframe>
+    </div>
+  </div>
 
-  async function loadFiles(folderId) {
-    const container = document.getElementById("fileContainer");
-    container.innerHTML = "<div class='loader'>Loading files...</div>";
+  <script>
+    const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
+    const folderId = new URLSearchParams(window.location.search).get("folder");
 
-    try {
-      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,modifiedTime,webViewLink)&key=${apiKey}`);
-      const data = await res.json();
-      allFiles = data.files || [];
-      renderFiles(allFiles);
-    } catch (err) {
-      container.innerHTML = "<p style='color:red;text-align:center;'>Error loading files.</p>";
-    }
-  }
-
-  function renderFiles(files) {
-    const container = document.getElementById("fileContainer");
-    const count = document.getElementById("fileCount");
-    container.innerHTML = "";
-    count.textContent = `${files.length} file(s)`;
-
-    if (!files.length) {
-      container.innerHTML = "<p style='text-align:center;'>No files found.</p>";
-      return;
+    if (!folderId) {
+      document.body.innerHTML = "<h3 style='text-align:center;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
+      throw new Error("No folder ID");
     }
 
-    files.forEach(file => {
-      const fileIcon = file.mimeType.includes("pdf") ? "pdf-2"
-                    : file.mimeType.includes("image") ? "image-file"
-                    : file.mimeType.includes("video") ? "video-file"
-                    : "document";
+    let allFiles = [];
+    let viewGrid = true;
+    let currentFilter = 'all';
+    let currentSort = 'az';
 
-      const div = document.createElement("div");
-      div.className = "file";
-      div.innerHTML = `
-        <button class="copy-btn" title="Copy link" onclick="copyLink('${file.webViewLink}')">🔗</button>
-        <img src="https://img.icons8.com/fluency/96/${fileIcon}.png">
-        <h4>${file.name}</h4>
-        <button class="view-btn" onclick="viewPDF('${file.id}')">View</button>
-      `;
-      container.appendChild(div);
+    function extType(mime) {
+      if (mime.includes("pdf")) return "pdf";
+      if (mime.includes("image")) return "image";
+      return "docs";
+    }
+
+    async function loadFiles() {
+      const container = document.getElementById("fileContainer");
+      container.innerHTML = "<div class='loader'>Loading files...</div>";
+
+      try {
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,modifiedTime,size,webViewLink)&key=${apiKey}`);
+        const data = await res.json();
+        allFiles = data.files || [];
+        renderFiles();
+      } catch(err) {
+        console.error(err);
+        document.getElementById("fileContainer").innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
+      }
+    }
+
+    function renderFiles() {
+      const container = document.getElementById("fileContainer");
+      container.innerHTML = "";
+      let files = [...allFiles];
+
+      // filter
+      if (currentFilter !== 'all') {
+        files = files.filter(f => extType(f.mimeType) === currentFilter);
+      }
+
+      // sort
+      files.sort((a, b) => {
+        const na = a.name.toLowerCase(), nb = b.name.toLowerCase();
+        return currentSort === 'az' ? na.localeCompare(nb) : nb.localeCompare(na);
+      });
+
+      if (!files.length) {
+        container.innerHTML = "<p style='text-align:center;'>No files found with these filters.</p>";
+        return;
+      }
+
+      // for each file
+      files.forEach(file => {
+        const div = document.createElement("div");
+        div.className = "file-card";
+        if (!viewGrid) div.classList.add("list");
+        const type = extType(file.mimeType);
+        const sizeText = file.size ? `${(file.size/ (1024*1024)).toFixed(2)} MB` : '';
+        const mod = file.modifiedTime ? new Date(file.modifiedTime).toLocaleDateString() : '';
+        div.innerHTML = `
+          <img src="https://img.icons8.com/fluency/96/${type==='pdf' ? 'pdf-2' : type==='image' ? 'image-file' : 'document'}.png" alt="${type}">
+          <div class="info">
+            <h4>${file.name}</h4>
+            <div class="meta">${mod} ${ sizeText ? ' · '+sizeText : '' }</div>
+            <button class="view-btn" onclick="viewPDF('${file.id}')">View</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      container.className = viewGrid ? "grid" : "list";
+    }
+
+    function viewPDF(id) {
+      const frame = document.getElementById("pdfFrame");
+      const modal = document.getElementById("pdfModal");
+      frame.src = `https://drive.google.com/file/d/${id}/preview`;
+      modal.style.display = "flex";
+    }
+
+    function closePDF() {
+      document.getElementById("pdfModal").style.display = "none";
+      document.getElementById("pdfFrame").src = "";
+    }
+
+    // Event listeners
+    document.getElementById("searchBox").addEventListener("input", e => {
+      const term = e.target.value.toLowerCase();
+      allFiles = allFiles; // stay same
+      renderFiles();
+      // Actually search using name filter:
+      allFiles = allFiles; 
+      // We filter inside renderFiles
     });
-    container.className = gridView ? "grid" : "list";
-  }
 
-  function viewPDF(id) {
-    document.getElementById("pdfModal").style.display = "flex";
-    document.getElementById("pdfFrame").src = `https://drive.google.com/file/d/${id}/preview`;
-  }
+    document.getElementById("filterType").addEventListener("change", e => {
+      currentFilter = e.target.value;
+      renderFiles();
+    });
 
-  function closePDF() {
-    document.getElementById("pdfModal").style.display = "none";
-    document.getElementById("pdfFrame").src = "";
-  }
+    document.getElementById("sortSelect").addEventListener("change", e => {
+      currentSort = e.target.value;
+      renderFiles();
+    });
 
-  function copyLink(link) {
-    navigator.clipboard.writeText(link);
-    alert("✅ Link copied!");
-  }
+    document.getElementById("toggleViewBtn").addEventListener("click", e => {
+      viewGrid = !viewGrid;
+      toggleViewBtn.textContent = viewGrid ? "List View" : "Grid View";
+      renderFiles();
+    });
 
-  document.getElementById("searchBox").addEventListener("input", e => {
-    const term = e.target.value.toLowerCase();
-    const filtered = allFiles.filter(f => f.name.toLowerCase().includes(term));
-    renderFiles(filtered);
-  });
-
-  document.getElementById("sortSelect").addEventListener("change", e => {
-    const val = e.target.value;
-    let sorted = [...allFiles];
-    if (val === "az") sorted.sort((a, b) => a.name.localeCompare(b.name));
-    else if (val === "za") sorted.sort((a, b) => b.name.localeCompare(a.name));
-    else sorted.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
-    renderFiles(sorted);
-  });
-
-  document.getElementById("toggleViewBtn").addEventListener("click", () => {
-    gridView = !gridView;
-    document.getElementById("toggleViewBtn").textContent = gridView ? "🔳 Grid" : "📋 List";
-    renderFiles(allFiles);
-  });
-</script>
-
+    loadFiles();
+  </script>
 </body>
 </html>

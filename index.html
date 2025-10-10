@@ -3,223 +3,211 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Drive Folder Viewer + More Features</title>
+  <title>Drive Folder Viewer</title>
   <style>
     body {
       font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #E6E6F2, #C5CAE9);
+      background: linear-gradient(135deg, #e8ecff, #e6f5ff);
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      overflow-x: hidden;
     }
-    h2 {
+
+    header {
       text-align: center;
-      color: #0d47a1;
-      margin-bottom: 10px;
-      font-size: 22px;
+      padding: 16px 10px;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      color: #fff;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
     }
+
     .toolbar {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 20px;
+      padding: 15px;
+      background: #f1f5ff;
     }
-    .toolbar input[type="text"], .toolbar select, .toolbar button.toggle {
+
+    .toolbar input,
+    .toolbar select {
       padding: 8px 12px;
-      border: 1px solid #90caf9;
-      border-radius: 20px;
-      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #93c5fd;
       outline: none;
+      font-size: 14px;
       transition: 0.3s;
     }
-    .toolbar input[type="text"]:focus {
-      box-shadow: 0 0 8px rgba(33,150,243,0.4);
-    }
-    .toolbar button.toggle {
-      background: linear-gradient(135deg, #2196f3, #1565c0);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-    .toolbar select:hover, .toolbar button.toggle:hover {
-      opacity: 0.9;
+
+    .toolbar input:focus {
+      box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
     }
 
-    .grid, .list {
+    #fileContainer {
       display: grid;
-      gap: 16px;
-      animation: fadeIn 0.6s ease;
-    }
-    .grid {
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 18px;
+      padding: 15px;
+      animation: fadeIn 0.8s ease;
     }
-    .list {
-      grid-template-columns: 1fr;
-    }
+
     .file-card {
-      background: #fff;
+      background: #ffffff;
       border-radius: 16px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-      overflow: hidden;
-      transition: transform 0.3s, box-shadow 0.3s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-    .list .file-card {
-      flex-direction: row;
-      align-items: center;
-    }
-    .file-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(33,150,243,0.2);
-    }
-    .file-card img {
-      width: 60px;
-      height: 60px;
-      margin-bottom: 10px;
-      transition: transform 0.3s;
-    }
-    .list .file-card img {
-      margin: 0 15px 0 0;
-    }
-    .file-card:hover img {
-      transform: scale(1.1);
-    }
-    .file-card .info {
-      padding: 0 10px 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
       text-align: center;
-    }
-    .list .file-card .info {
-      text-align: left;
-      padding: 0;
-      flex: 1;
-    }
-    .file-card h4 {
-      font-size: 14px;
-      color: #1e3a8a;
-      margin: 5px 0;
-      height: 40px;
-      overflow: hidden;
-    }
-    .file-card .meta {
-      font-size: 12px;
-      color: #666;
-    }
-    .file-card .view-btn {
-      background: linear-gradient(135deg, #2196f3, #0d47a1);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 20px;
+      padding: 16px 10px;
+      transition: all 0.3s ease;
       cursor: pointer;
-      font-size: 12px;
-      margin: 8px 0;
-      transition: background 0.3s, transform 0.2s;
-    }
-    .file-card .view-btn:hover {
-      background: linear-gradient(135deg, #1976d2, #0a369d);
-      transform: scale(1.05);
+      transform: translateY(10px);
+      opacity: 0;
+      animation: fadeUp 0.5s forwards;
     }
 
-    .loader {
-      text-align: center;
-      margin-top: 40px;
-      color: #444;
+    .file-card:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
     }
 
-    /* Modal */
-    #pdfModal {
+    .file-card img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+
+    .file-card h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e3a8a;
+      margin: 0 0 5px;
+    }
+
+    .file-card p {
+      font-size: 11px;
+      color: #555;
+      margin: 0;
+    }
+
+    /* Loading shimmer */
+    .shimmer {
+      width: 100%;
+      height: 100px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
+      background-size: 400% 100%;
+      animation: shimmer 1.4s ease infinite;
+      border-radius: 12px;
+    }
+
+    /* Fullscreen PDF Viewer */
+    #pdfViewer {
       display: none;
+      width: 100vw;
+      height: 100vh;
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      justify-content: center;
-      align-items: center;
+      top: 0;
+      left: 0;
       z-index: 999;
+      background: #000;
       animation: fadeIn 0.4s ease;
     }
-    .pdf-viewer {
-      width: 90%;
-      height: 90%;
-      background: #fff;
-      border-radius: 12px;
-      position: relative;
-      overflow: hidden;
-      animation: scaleIn 0.4s ease;
-    }
-    .pdf-viewer iframe {
+
+    #pdfViewer iframe {
       width: 100%;
       height: 100%;
       border: none;
     }
-    .close-btn {
+
+    .closePDF {
       position: absolute;
       top: 10px;
       right: 10px;
-      background: #ef4444;
-      color: white;
+      background: rgba(239, 68, 68, 0.9);
+      color: #fff;
       border: none;
-      padding: 6px 12px;
+      padding: 8px 12px;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: bold;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 1000;
+      transition: 0.3s;
     }
-    .close-btn:hover {
+
+    .closePDF:hover {
       background: #dc2626;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* Animations */
+    @keyframes fadeUp {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
-    @keyframes scaleIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -400px 0;
+      }
+      100% {
+        background-position: 400px 0;
+      }
     }
 
     @media (max-width: 480px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-      .toolbar input[type="text"], .toolbar select, .toolbar button.toggle {
-        width: 90%;
-        font-size: 12px;
-      }
-      h2 {
+      header {
         font-size: 18px;
+      }
+      .file-card img {
+        width: 60px;
+        height: 60px;
       }
     }
   </style>
 </head>
 <body>
-
-  <h2>📁 Drive Folder Viewer</h2>
+  <header>📚 Drive Folder Viewer</header>
 
   <div class="toolbar">
     <input type="text" id="searchBox" placeholder="Search files...">
     <select id="filterType">
-      <option value="all">Filter: All Files</option>
+      <option value="all">All Files</option>
       <option value="pdf">PDFs Only</option>
       <option value="image">Images Only</option>
-      <option value="docs">Docs / Other</option>
     </select>
-    <select id="sortSelect">
-      <option value="az">Sort: A → Z</option>
-      <option value="za">Sort: Z → A</option>
-    </select>
-    <button class="toggle" id="toggleViewBtn">List View</button>
   </div>
 
-  <div id="fileContainer" class="grid"></div>
+  <div id="fileContainer">
+    <!-- Loading shimmer placeholders -->
+    <div class="shimmer"></div>
+    <div class="shimmer"></div>
+    <div class="shimmer"></div>
+  </div>
 
-  <!-- PDF Modal -->
-  <div id="pdfModal">
-    <div class="pdf-viewer">
-      <button class="close-btn" onclick="closePDF()">✖</button>
-      <iframe id="pdfFrame"></iframe>
-    </div>
+  <!-- Fullscreen PDF viewer -->
+  <div id="pdfViewer">
+    <button class="closePDF" onclick="closePDF()">✖ Close</button>
+    <iframe id="pdfFrame"></iframe>
   </div>
 
   <script>
@@ -227,114 +215,99 @@
     const folderId = new URLSearchParams(window.location.search).get("folder");
 
     if (!folderId) {
-      document.body.innerHTML = "<h3 style='text-align:center;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
-      throw new Error("No folder ID");
+      document.body.innerHTML = "<h3 style='text-align:center;color:red;padding:40px;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
+      throw new Error("No folder ID provided");
     }
 
     let allFiles = [];
-    let viewGrid = true;
-    let currentFilter = 'all';
-    let currentSort = 'az';
+    let currentFilter = "all";
+    const fileContainer = document.getElementById("fileContainer");
 
     function extType(mime) {
       if (mime.includes("pdf")) return "pdf";
       if (mime.includes("image")) return "image";
-      return "docs";
+      return "other";
     }
 
     async function loadFiles() {
-      const container = document.getElementById("fileContainer");
-      container.innerHTML = "<div class='loader'>Loading files...</div>";
-
       try {
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,modifiedTime,size,webViewLink)&key=${apiKey}`);
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,modifiedTime)&key=${apiKey}`);
         const data = await res.json();
         allFiles = data.files || [];
         renderFiles();
-      } catch(err) {
+      } catch (err) {
         console.error(err);
-        document.getElementById("fileContainer").innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
+        fileContainer.innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
       }
     }
 
     function renderFiles() {
-      const container = document.getElementById("fileContainer");
-      container.innerHTML = "";
+      fileContainer.innerHTML = "";
       let files = [...allFiles];
 
-      // filter
-      if (currentFilter !== 'all') {
+      if (currentFilter !== "all") {
         files = files.filter(f => extType(f.mimeType) === currentFilter);
       }
 
-      // sort
-      files.sort((a, b) => {
-        const na = a.name.toLowerCase(), nb = b.name.toLowerCase();
-        return currentSort === 'az' ? na.localeCompare(nb) : nb.localeCompare(na);
-      });
+      const searchTerm = document.getElementById("searchBox").value.toLowerCase();
+      if (searchTerm) {
+        files = files.filter(f => f.name.toLowerCase().includes(searchTerm));
+      }
 
       if (!files.length) {
-        container.innerHTML = "<p style='text-align:center;'>No files found with these filters.</p>";
+        fileContainer.innerHTML = "<p style='text-align:center;'>No files found.</p>";
         return;
       }
 
-      // for each file
-      files.forEach(file => {
+      files.forEach((file, i) => {
         const div = document.createElement("div");
         div.className = "file-card";
-        if (!viewGrid) div.classList.add("list");
-        const type = extType(file.mimeType);
-        const sizeText = file.size ? `${(file.size/ (1024*1024)).toFixed(2)} MB` : '';
-        const mod = file.modifiedTime ? new Date(file.modifiedTime).toLocaleDateString() : '';
-        div.innerHTML = `
-          <img src="https://img.icons8.com/fluency/96/${type==='pdf' ? 'pdf-2' : type==='image' ? 'image-file' : 'document'}.png" alt="${type}">
-          <div class="info">
-            <h4>${file.name}</h4>
-            <div class="meta">${mod} ${ sizeText ? ' · '+sizeText : '' }</div>
-            <button class="view-btn" onclick="viewPDF('${file.id}')">View</button>
-          </div>
-        `;
-        container.appendChild(div);
-      });
+        div.style.animationDelay = `${i * 0.08}s`;
 
-      container.className = viewGrid ? "grid" : "list";
+        const type = extType(file.mimeType);
+        const icon =
+          type === "pdf"
+            ? "https://img.icons8.com/color/96/pdf.png"
+            : type === "image"
+            ? "https://img.icons8.com/color/96/image.png"
+            : "https://img.icons8.com/color/96/document.png";
+
+        div.innerHTML = `
+          <img src="${icon}" alt="${type}">
+          <h4>${file.name}</h4>
+          <p>${new Date(file.modifiedTime).toLocaleDateString()}</p>
+        `;
+        div.onclick = () => openPDF(file);
+        fileContainer.appendChild(div);
+      });
     }
 
-    function viewPDF(id) {
+    function openPDF(file) {
+      const viewer = document.getElementById("pdfViewer");
       const frame = document.getElementById("pdfFrame");
-      const modal = document.getElementById("pdfModal");
-      frame.src = `https://drive.google.com/file/d/${id}/preview`;
-      modal.style.display = "flex";
+
+      if (file.mimeType.includes("pdf")) {
+        frame.src = `https://drive.google.com/file/d/${file.id}/preview`;
+      } else if (file.mimeType.includes("image")) {
+        frame.src = file.webViewLink || `https://drive.google.com/uc?id=${file.id}`;
+      } else {
+        frame.src = `https://drive.google.com/file/d/${file.id}/view`;
+      }
+
+      viewer.style.display = "block";
+      document.body.style.overflow = "hidden";
     }
 
     function closePDF() {
-      document.getElementById("pdfModal").style.display = "none";
+      const viewer = document.getElementById("pdfViewer");
+      viewer.style.display = "none";
+      document.body.style.overflow = "auto";
       document.getElementById("pdfFrame").src = "";
     }
 
-    // Event listeners
-    document.getElementById("searchBox").addEventListener("input", e => {
-      const term = e.target.value.toLowerCase();
-      allFiles = allFiles; // stay same
-      renderFiles();
-      // Actually search using name filter:
-      allFiles = allFiles; 
-      // We filter inside renderFiles
-    });
-
+    document.getElementById("searchBox").addEventListener("input", renderFiles);
     document.getElementById("filterType").addEventListener("change", e => {
       currentFilter = e.target.value;
-      renderFiles();
-    });
-
-    document.getElementById("sortSelect").addEventListener("change", e => {
-      currentSort = e.target.value;
-      renderFiles();
-    });
-
-    document.getElementById("toggleViewBtn").addEventListener("click", e => {
-      viewGrid = !viewGrid;
-      toggleViewBtn.textContent = viewGrid ? "List View" : "Grid View";
       renderFiles();
     });
 

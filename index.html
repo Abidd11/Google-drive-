@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Drive Folder Viewer</title>
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #e3f2fd, #c5cae9);
+    margin: 0;
+    padding: 20px;
+  }
+
+  h2 {
+    text-align: center;
+    color: #0d47a1;
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  input[type="text"] {
+    padding: 8px 12px;
+    width: 220px;
+    border: 1px solid #90caf9;
+    border-radius: 20px;
+    outline: none;
+    transition: all 0.3s;
+  }
+  input[type="text"]:focus {
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
+  }
+
+  select {
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #90caf9;
+    background: white;
+    color: #0d47a1;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    animation: fadeIn 0.8s ease;
+  }
+
+  .file {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    padding: 14px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .file:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(33, 150, 243, 0.2);
+  }
+
+  .file img {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 10px;
+    transition: transform 0.3s;
+  }
+  .file:hover img {
+    transform: scale(1.08);
+  }
+
+  .file h4 {
+    font-size: 14px;
+    color: #1e3a8a;
+    font-weight: 500;
+    height: 40px;
+    overflow: hidden;
+  }
+
+  .view-btn {
+    background: linear-gradient(135deg, #2196f3, #0d47a1);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-top: 6px;
+    transition: all 0.3s;
+  }
+  .view-btn:hover {
+    background: linear-gradient(135deg, #1976d2, #0a369d);
+    transform: scale(1.05);
+  }
+
+  .loader {
+    text-align: center;
+    margin-top: 40px;
+    color: #444;
+  }
+
+  /* Modal */
+  #pdfModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .pdf-viewer {
+    width: 90%;
+    height: 90%;
+    background: white;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    animation: scaleIn 0.4s ease;
+  }
+
+  .pdf-viewer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+  .close-btn:hover {
+    background: #dc2626;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  @media (max-width: 480px) {
+    input[type="text"] { width: 160px; font-size: 12px; }
+    select { font-size: 12px; }
+    h2 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<h2>📁 Drive Folder Files</h2>
+
+<div class="toolbar">
+  <input type="text" id="searchBox" placeholder="Search files...">
+  <select id="sortSelect">
+    <option value="az">Sort: A → Z</option>
+    <option value="za">Sort: Z → A</option>
+  </select>
+</div>
+
+<div id="fileGrid" class="grid"></div>
+
+<!-- PDF Modal -->
+<div id="pdfModal">
+  <div class="pdf-viewer">
+    <button class="close-btn" onclick="closePDF()">✖</button>
+    <iframe id="pdfFrame"></iframe>
+  </div>
+</div>
+
+<script>
+  const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
+  const folderId = new URLSearchParams(window.location.search).get("folder");
+
+  if (!folderId) {
+    document.body.innerHTML = "<h3 style='text-align:center;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
+  } else {
+    loadFiles(folderId);
+  }
+
+  let allFiles = [];
+
+  async function loadFiles(folderId) {
+    const grid = document.getElementById("fileGrid");
+    grid.innerHTML = "<div class='loader'>Loading files...</div>";
+
+    try {
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,webViewLink)&key=${apiKey}`);
+      const data = await res.json();
+      allFiles = data.files || [];
+      renderFiles(allFiles);
+    } catch (err) {
+      console.error(err);
+      grid.innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
+    }
+  }
+
+  function renderFiles(files) {
+    const grid = document.getElementById("fileGrid");
+    grid.innerHTML = "";
+    if (!files.length) {
+      grid.innerHTML = "<p style='text-align:center;'>No files found.</p>";
+      return;
+    }
+
+    files.forEach(file => {
+      const div = document.createElement("div");
+      div.className = "file";
+      div.innerHTML = `
+        <img src="https://img.icons8.com/fluency/96/${file.mimeType.includes('pdf') ? 'pdf-2' : 'document'}.png">
+        <h4>${file.name}</h4>
+        <button class="view-btn" onclick="viewPDF('${file.id}')">View</button>
+      `;
+      grid.appendChild(div);
+    });
+  }
+
+  function viewPDF(id) {
+    const modal = document.getElementById("pdfModal");
+    const frame = document.getElementById("pdfFrame");
+    const previewUrl = `https://drive.google.com/file/d/${id}/preview`;
+    frame.src = previewUrl;
+    modal.style.display = "flex";
+  }
+
+  function closePDF() {
+    document.getElementById("pdfModal").style.display = "none";
+    document.getElementById("pdfFrame").src = "";
+  }
+
+  // Search
+  document.getElementById("searchBox").addEventListener("input", e => {
+    const term = e.target.value.toLowerCase();
+    const filtered = allFiles.filter(f => f.name.toLowerCase().includes(term));
+    renderFiles(filtered);
+  });
+
+  // Sort
+  document.getElementById("sortSelect").addEventListener("change", e => {
+    const val = e.target.value;
+    const sorted = [...allFiles].sort((a, b) =>
+      val === "az" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+    );
+    renderFiles(sorted);
+  });
+</script>
+
+</body>
+</html>

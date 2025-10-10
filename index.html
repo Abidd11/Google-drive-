@@ -40,7 +40,7 @@
     box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
   }
 
-  select {
+  select, button.toggle {
     padding: 8px 12px;
     border-radius: 20px;
     border: 1px solid #90caf9;
@@ -48,13 +48,30 @@
     color: #0d47a1;
     font-weight: 500;
     cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  button.toggle {
+    background: linear-gradient(135deg, #2196f3, #1565c0);
+    color: #fff;
+    border: none;
+  }
+  button.toggle:hover {
+    background: linear-gradient(135deg, #1976d2, #0a369d);
+  }
+
+  .grid, .list {
+    display: grid;
+    gap: 16px;
+    animation: fadeIn 0.6s ease;
   }
 
   .grid {
-    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
-    animation: fadeIn 0.8s ease;
+  }
+
+  .list {
+    grid-template-columns: 1fr;
   }
 
   .file {
@@ -66,6 +83,16 @@
     transition: transform 0.3s, box-shadow 0.3s;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .list .file {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px 14px;
+    text-align: left;
   }
 
   .file:hover {
@@ -79,6 +106,11 @@
     margin-bottom: 10px;
     transition: transform 0.3s;
   }
+  .list .file img {
+    margin-right: 15px;
+    margin-bottom: 0;
+  }
+
   .file:hover img {
     transform: scale(1.08);
   }
@@ -89,6 +121,10 @@
     font-weight: 500;
     height: 40px;
     overflow: hidden;
+  }
+
+  .list .file h4 {
+    height: auto;
   }
 
   .view-btn {
@@ -170,14 +206,14 @@
 
   @media (max-width: 480px) {
     input[type="text"] { width: 160px; font-size: 12px; }
-    select { font-size: 12px; }
+    select, button.toggle { font-size: 12px; }
     h2 { font-size: 18px; }
   }
 </style>
 </head>
 <body>
 
-<h2>📁 Drive Folder Files</h2>
+<h2>📁 Drive Folder Viewer</h2>
 
 <div class="toolbar">
   <input type="text" id="searchBox" placeholder="Search files...">
@@ -185,9 +221,10 @@
     <option value="az">Sort: A → Z</option>
     <option value="za">Sort: Z → A</option>
   </select>
+  <button class="toggle" id="toggleViewBtn">🔳 Grid View</button>
 </div>
 
-<div id="fileGrid" class="grid"></div>
+<div id="fileContainer" class="grid"></div>
 
 <!-- PDF Modal -->
 <div id="pdfModal">
@@ -208,10 +245,11 @@
   }
 
   let allFiles = [];
+  let gridView = true;
 
   async function loadFiles(folderId) {
-    const grid = document.getElementById("fileGrid");
-    grid.innerHTML = "<div class='loader'>Loading files...</div>";
+    const container = document.getElementById("fileContainer");
+    container.innerHTML = "<div class='loader'>Loading files...</div>";
 
     try {
       const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,webViewLink)&key=${apiKey}`);
@@ -220,15 +258,15 @@
       renderFiles(allFiles);
     } catch (err) {
       console.error(err);
-      grid.innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
+      container.innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
     }
   }
 
   function renderFiles(files) {
-    const grid = document.getElementById("fileGrid");
-    grid.innerHTML = "";
+    const container = document.getElementById("fileContainer");
+    container.innerHTML = "";
     if (!files.length) {
-      grid.innerHTML = "<p style='text-align:center;'>No files found.</p>";
+      container.innerHTML = "<p style='text-align:center;'>No files found.</p>";
       return;
     }
 
@@ -240,15 +278,16 @@
         <h4>${file.name}</h4>
         <button class="view-btn" onclick="viewPDF('${file.id}')">View</button>
       `;
-      grid.appendChild(div);
+      container.appendChild(div);
     });
+
+    container.className = gridView ? "grid" : "list";
   }
 
   function viewPDF(id) {
     const modal = document.getElementById("pdfModal");
     const frame = document.getElementById("pdfFrame");
-    const previewUrl = `https://drive.google.com/file/d/${id}/preview`;
-    frame.src = previewUrl;
+    frame.src = `https://drive.google.com/file/d/${id}/preview`;
     modal.style.display = "flex";
   }
 
@@ -257,20 +296,24 @@
     document.getElementById("pdfFrame").src = "";
   }
 
-  // Search
   document.getElementById("searchBox").addEventListener("input", e => {
     const term = e.target.value.toLowerCase();
     const filtered = allFiles.filter(f => f.name.toLowerCase().includes(term));
     renderFiles(filtered);
   });
 
-  // Sort
   document.getElementById("sortSelect").addEventListener("change", e => {
     const val = e.target.value;
     const sorted = [...allFiles].sort((a, b) =>
       val === "az" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
     );
     renderFiles(sorted);
+  });
+
+  document.getElementById("toggleViewBtn").addEventListener("click", () => {
+    gridView = !gridView;
+    document.getElementById("toggleViewBtn").textContent = gridView ? "🔳 Grid View" : "📋 List View";
+    renderFiles(allFiles);
   });
 </script>
 

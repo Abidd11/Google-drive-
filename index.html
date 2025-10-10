@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drive File Grid</title>
+<title>Drive Explorer</title>
 <style>
   body {
     margin: 0;
@@ -25,7 +25,7 @@
     z-index: 10;
   }
 
-  /* Search and Tools */
+  /* Toolbar */
   .toolbar {
     display: flex;
     justify-content: center;
@@ -43,14 +43,21 @@
     width: 200px;
   }
 
-  .toolbar select {
-    padding: 8px 12px;
-    border-radius: 10px;
+  .toolbar button {
+    padding: 8px 14px;
+    background: #1e3a8a;
     border: none;
-    font-size: 14px;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  .toolbar button:hover {
+    background: #334155;
   }
 
-  /* Grid Layout */
+  /* Grid */
   #fileContainer {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -61,7 +68,6 @@
   @media (max-width: 768px) { #fileContainer { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { #fileContainer { grid-template-columns: 1fr; } }
 
-  /* File Card */
   .file-card {
     background: #f8fafc;
     color: #111;
@@ -73,6 +79,7 @@
     transition: transform 0.3s, box-shadow 0.3s;
     animation: fadeUp 0.4s ease forwards;
   }
+
   .file-card:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 15px rgba(255,255,255,0.15);
@@ -80,7 +87,7 @@
 
   .file-card img {
     width: 100%;
-    height: 90px;
+    height: 100px;
     object-fit: contain;
     background: #e2e8f0;
   }
@@ -95,7 +102,7 @@
     white-space: nowrap;
   }
 
-  /* Fullscreen Preview */
+  /* Preview */
   #previewBox {
     position: fixed;
     top: 0; left: 0;
@@ -139,22 +146,17 @@
 </head>
 <body>
 
-<header>📺 Drive File Grid Viewer</header>
+<header>📁 Google Drive Explorer</header>
 
 <div class="toolbar">
+  <button id="backBtn" style="display:none;">⬅ Back</button>
   <input type="text" id="searchBox" placeholder="Search files...">
-  <select id="filterType">
-    <option value="all">All</option>
-    <option value="pdf">PDF</option>
-    <option value="image">Image</option>
-  </select>
 </div>
 
 <div id="fileContainer">
   <p style="grid-column: span 3; text-align:center;">Loading files...</p>
 </div>
 
-<!-- Fullscreen Preview -->
 <div id="previewBox">
   <button id="closePreview">✖ Close</button>
   <iframe id="pdfFrame"></iframe>
@@ -163,70 +165,89 @@
 
 <script>
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
-const folderId = new URLSearchParams(window.location.search).get("folder");
-
-if (!folderId) {
+const rootId = new URLSearchParams(window.location.search).get("folder");
+if (!rootId) {
   document.body.innerHTML = "<h3 style='text-align:center;color:red;padding:40px;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
-  throw new Error("No folder ID provided");
+  throw new Error("No folder ID");
 }
 
+let folderStack = [rootId];
 let allFiles = [];
-let currentFilter = "all";
 const container = document.getElementById("fileContainer");
 const searchBox = document.getElementById("searchBox");
-const filterSelect = document.getElementById("filterType");
+const backBtn = document.getElementById("backBtn");
 
 function getType(mime) {
+  if (mime === "application/vnd.google-apps.folder") return "folder";
   if (mime.includes("pdf")) return "pdf";
   if (mime.includes("image")) return "image";
   return "other";
 }
 
-async function loadFiles() {
+async function loadFiles(folderId) {
   try {
+    container.innerHTML = "<p style='grid-column: span 3; text-align:center;'>⏳ Loading...</p>";
     const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType)&key=${apiKey}`);
     const data = await res.json();
     allFiles = data.files || [];
     renderFiles();
-  } catch (err) {
-    container.innerHTML = "<p style='text-align:center;color:red;'>⚠️ Error loading files</p>";
+    backBtn.style.display = folderStack.length > 1 ? "block" : "none";
+  } catch {
+    container.innerHTML = "<p style='text-align:center;color:red;'>⚠️ Failed to load folder.</p>";
   }
 }
 
 function renderFiles() {
-  let files = [...allFiles];
-  if (currentFilter !== "all") files = files.filter(f => getType(f.mimeType) === currentFilter);
   const term = searchBox.value.toLowerCase();
-  if (term) files = files.filter(f => f.name.toLowerCase().includes(term));
-
+  let files = allFiles.filter(f => f.name.toLowerCase().includes(term));
   if (!files.length) {
-    container.innerHTML = "<p style='text-align:center;'>No files found.</p>";
+    container.innerHTML = "<p style='grid-column: span 3; text-align:center;'>No files found.</p>";
     return;
   }
 
   container.innerHTML = "";
   files.forEach((file, i) => {
     const type = getType(file.mimeType);
-    const div = document.createElement("div");
-    div.className = "file-card";
-    div.style.animationDelay = `${i * 0.05}s`;
+    const card = document.createElement("div");
+    card.className = "file-card";
+    card.style.animationDelay = `${i * 0.05}s`;
+
     const icon =
-      type === "pdf"
+      type === "folder"
+        ? "https://img.icons8.com/color/96/folder-invoices.png"
+        : type === "pdf"
         ? "https://img.icons8.com/color/96/pdf.png"
         : type === "image"
         ? `https://drive.google.com/uc?id=${file.id}`
-        : "https://img.icons8.com/color/96/document.png";
-    div.innerHTML = `<img src="${icon}" alt=""><h4>${file.name}</h4>`;
-    div.onclick = () => openPreview(file, type);
-    container.appendChild(div);
+        : "https://img.icons8.com/fluency/96/file.png";
+
+    card.innerHTML = `<img src="${icon}" alt=""><h4>${file.name}</h4>`;
+
+    if (type === "folder") card.onclick = () => openFolder(file.id);
+    else card.onclick = () => openPreview(file, type);
+
+    container.appendChild(card);
   });
 }
 
+function openFolder(id) {
+  folderStack.push(id);
+  loadFiles(id);
+}
+
+backBtn.onclick = () => {
+  if (folderStack.length > 1) {
+    folderStack.pop();
+    loadFiles(folderStack[folderStack.length - 1]);
+  }
+};
+
 function openPreview(file, type) {
-  document.getElementById("previewBox").style.display = "flex";
+  const previewBox = document.getElementById("previewBox");
   const pdfFrame = document.getElementById("pdfFrame");
   const imgFrame = document.getElementById("imgFrame");
 
+  previewBox.style.display = "flex";
   if (type === "pdf") {
     pdfFrame.style.display = "block";
     imgFrame.style.display = "none";
@@ -245,9 +266,7 @@ document.getElementById("closePreview").onclick = () => {
 };
 
 searchBox.addEventListener("input", renderFiles);
-filterSelect.addEventListener("change", e => { currentFilter = e.target.value; renderFiles(); });
-
-loadFiles();
+loadFiles(rootId);
 </script>
 </body>
 </html>

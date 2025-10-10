@@ -6,57 +6,56 @@
 <title>Drive Folder Viewer</title>
 <style>
   body {
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(135deg, #e3f2fd, #c5cae9);
     margin: 0;
     padding: 20px;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(135deg, #e0f7fa, #bbdefb);
+    color: #0d47a1;
   }
 
   h2 {
     text-align: center;
+    font-size: 24px;
     color: #0d47a1;
-    font-size: 22px;
-    margin-bottom: 10px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 
   .toolbar {
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
     flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 25px;
   }
 
-  input[type="text"] {
-    padding: 8px 12px;
-    width: 220px;
+  input, select, button {
+    padding: 10px 14px;
+    border-radius: 30px;
     border: 1px solid #90caf9;
-    border-radius: 20px;
     outline: none;
-    transition: all 0.3s;
+    transition: 0.3s;
+    font-size: 14px;
   }
-  input[type="text"]:focus {
+
+  input {
+    width: 220px;
+  }
+
+  input:focus {
     box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
   }
 
-  select, button.toggle {
-    padding: 8px 12px;
-    border-radius: 20px;
-    border: 1px solid #90caf9;
-    background: white;
-    color: #0d47a1;
-    font-weight: 500;
+  button {
     cursor: pointer;
-    transition: all 0.3s;
-  }
-
-  button.toggle {
     background: linear-gradient(135deg, #2196f3, #1565c0);
     color: #fff;
     border: none;
+    font-weight: 600;
   }
-  button.toggle:hover {
+
+  button:hover {
     background: linear-gradient(135deg, #1976d2, #0a369d);
   }
 
@@ -67,7 +66,7 @@
   }
 
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 
   .list {
@@ -75,60 +74,39 @@
   }
 
   .file {
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-    text-align: center;
+    background: rgba(255,255,255,0.8);
+    border-radius: 18px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
     padding: 14px;
-    transition: transform 0.3s, box-shadow 0.3s;
+    text-align: center;
+    transition: 0.3s;
     position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .list .file {
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 10px 14px;
-    text-align: left;
   }
 
   .file:hover {
     transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(33, 150, 243, 0.2);
+    box-shadow: 0 10px 25px rgba(33, 150, 243, 0.2);
   }
 
   .file img {
     width: 70px;
     height: 70px;
-    margin-bottom: 10px;
-    transition: transform 0.3s;
-  }
-  .list .file img {
-    margin-right: 15px;
-    margin-bottom: 0;
-  }
-
-  .file:hover img {
-    transform: scale(1.08);
+    margin-bottom: 8px;
   }
 
   .file h4 {
     font-size: 14px;
-    color: #1e3a8a;
-    font-weight: 500;
-    height: 40px;
+    margin: 5px 0;
+    color: #0d47a1;
+    white-space: nowrap;
     overflow: hidden;
-  }
-
-  .list .file h4 {
-    height: auto;
+    text-overflow: ellipsis;
   }
 
   .view-btn {
-    background: linear-gradient(135deg, #2196f3, #0d47a1);
+    background: #2196f3;
     color: white;
     border: none;
     padding: 6px 12px;
@@ -136,17 +114,34 @@
     cursor: pointer;
     font-size: 12px;
     margin-top: 6px;
-    transition: all 0.3s;
+    transition: 0.3s;
   }
+
   .view-btn:hover {
-    background: linear-gradient(135deg, #1976d2, #0a369d);
-    transform: scale(1.05);
+    background: #1976d2;
+  }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: rgba(255,255,255,0.6);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 4px 7px;
+    transition: 0.3s;
+  }
+
+  .copy-btn:hover {
+    background: #bbdefb;
   }
 
   .loader {
     text-align: center;
+    font-size: 16px;
+    color: #1976d2;
     margin-top: 40px;
-    color: #444;
   }
 
   /* Modal */
@@ -158,7 +153,6 @@
     justify-content: center;
     align-items: center;
     z-index: 999;
-    animation: fadeIn 0.4s ease;
   }
 
   .pdf-viewer {
@@ -166,9 +160,8 @@
     height: 90%;
     background: white;
     border-radius: 12px;
-    position: relative;
     overflow: hidden;
-    animation: scaleIn 0.4s ease;
+    position: relative;
   }
 
   .pdf-viewer iframe {
@@ -179,54 +172,53 @@
 
   .close-btn {
     position: absolute;
-    top: 10px;
+    top: 8px;
     right: 10px;
     background: #ef4444;
     color: white;
     border: none;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
-    transition: background 0.3s;
   }
-  .close-btn:hover {
-    background: #dc2626;
+
+  .file-count {
+    text-align: center;
+    color: #333;
+    font-size: 13px;
+    margin-top: 5px;
   }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes scaleIn {
-    from { transform: scale(0.9); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+    from {opacity:0; transform: translateY(10px);}
+    to {opacity:1; transform: translateY(0);}
   }
 
   @media (max-width: 480px) {
-    input[type="text"] { width: 160px; font-size: 12px; }
-    select, button.toggle { font-size: 12px; }
+    input { width: 160px; }
     h2 { font-size: 18px; }
   }
 </style>
 </head>
 <body>
 
-<h2>📁 Drive Folder Viewer</h2>
+<h2>📁 Google Drive Viewer</h2>
 
 <div class="toolbar">
   <input type="text" id="searchBox" placeholder="Search files...">
   <select id="sortSelect">
-    <option value="az">Sort: A → Z</option>
-    <option value="za">Sort: Z → A</option>
+    <option value="az">A → Z</option>
+    <option value="za">Z → A</option>
+    <option value="date">Newest</option>
   </select>
-  <button class="toggle" id="toggleViewBtn">🔳 Grid View</button>
+  <button id="toggleViewBtn">🔳 Grid</button>
 </div>
 
 <div id="fileContainer" class="grid"></div>
+<p class="file-count" id="fileCount"></p>
 
-<!-- PDF Modal -->
+<!-- Modal -->
 <div id="pdfModal">
   <div class="pdf-viewer">
     <button class="close-btn" onclick="closePDF()">✖</button>
@@ -237,7 +229,6 @@
 <script>
   const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
   const folderId = new URLSearchParams(window.location.search).get("folder");
-
   if (!folderId) {
     document.body.innerHTML = "<h3 style='text-align:center;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
   } else {
@@ -252,48 +243,58 @@
     container.innerHTML = "<div class='loader'>Loading files...</div>";
 
     try {
-      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,webViewLink)&key=${apiKey}`);
+      const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,modifiedTime,webViewLink)&key=${apiKey}`);
       const data = await res.json();
       allFiles = data.files || [];
       renderFiles(allFiles);
     } catch (err) {
-      console.error(err);
-      container.innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
+      container.innerHTML = "<p style='color:red;text-align:center;'>Error loading files.</p>";
     }
   }
 
   function renderFiles(files) {
     const container = document.getElementById("fileContainer");
+    const count = document.getElementById("fileCount");
     container.innerHTML = "";
+    count.textContent = `${files.length} file(s)`;
+
     if (!files.length) {
       container.innerHTML = "<p style='text-align:center;'>No files found.</p>";
       return;
     }
 
     files.forEach(file => {
+      const fileIcon = file.mimeType.includes("pdf") ? "pdf-2"
+                    : file.mimeType.includes("image") ? "image-file"
+                    : file.mimeType.includes("video") ? "video-file"
+                    : "document";
+
       const div = document.createElement("div");
       div.className = "file";
       div.innerHTML = `
-        <img src="https://img.icons8.com/fluency/96/${file.mimeType.includes('pdf') ? 'pdf-2' : 'document'}.png">
+        <button class="copy-btn" title="Copy link" onclick="copyLink('${file.webViewLink}')">🔗</button>
+        <img src="https://img.icons8.com/fluency/96/${fileIcon}.png">
         <h4>${file.name}</h4>
         <button class="view-btn" onclick="viewPDF('${file.id}')">View</button>
       `;
       container.appendChild(div);
     });
-
     container.className = gridView ? "grid" : "list";
   }
 
   function viewPDF(id) {
-    const modal = document.getElementById("pdfModal");
-    const frame = document.getElementById("pdfFrame");
-    frame.src = `https://drive.google.com/file/d/${id}/preview`;
-    modal.style.display = "flex";
+    document.getElementById("pdfModal").style.display = "flex";
+    document.getElementById("pdfFrame").src = `https://drive.google.com/file/d/${id}/preview`;
   }
 
   function closePDF() {
     document.getElementById("pdfModal").style.display = "none";
     document.getElementById("pdfFrame").src = "";
+  }
+
+  function copyLink(link) {
+    navigator.clipboard.writeText(link);
+    alert("✅ Link copied!");
   }
 
   document.getElementById("searchBox").addEventListener("input", e => {
@@ -304,15 +305,16 @@
 
   document.getElementById("sortSelect").addEventListener("change", e => {
     const val = e.target.value;
-    const sorted = [...allFiles].sort((a, b) =>
-      val === "az" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-    );
+    let sorted = [...allFiles];
+    if (val === "az") sorted.sort((a, b) => a.name.localeCompare(b.name));
+    else if (val === "za") sorted.sort((a, b) => b.name.localeCompare(a.name));
+    else sorted.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
     renderFiles(sorted);
   });
 
   document.getElementById("toggleViewBtn").addEventListener("click", () => {
     gridView = !gridView;
-    document.getElementById("toggleViewBtn").textContent = gridView ? "🔳 Grid View" : "📋 List View";
+    document.getElementById("toggleViewBtn").textContent = gridView ? "🔳 Grid" : "📋 List";
     renderFiles(allFiles);
   });
 </script>

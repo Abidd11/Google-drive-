@@ -1,348 +1,253 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📁 Drive Folder Viewer</title>
-  <style>
-    :root {
-      --bg: linear-gradient(135deg, #e8ecff, #e6f5ff);
-      --card-bg: #ffffff;
-      --text: #1e3a8a;
-      --shadow: rgba(0, 0, 0, 0.08);
-    }
-    body.dark {
-      --bg: linear-gradient(135deg, #111827, #1f2937);
-      --card-bg: #1e293b;
-      --text: #f3f4f6;
-      --shadow: rgba(255, 255, 255, 0.05);
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drive File Grid</title>
+<style>
+  body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background: #243b55;
+    color: #fff;
+    overflow-x: hidden;
+  }
 
-    body {
-      font-family: "Poppins", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      transition: background 0.5s ease, color 0.5s ease;
-    }
+  header {
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #1d2671, #c33764);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
 
-    header {
-      text-align: center;
-      padding: 16px 10px;
-      background: linear-gradient(135deg, #1e40af, #2563eb);
-      color: #fff;
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
-    }
+  /* Search and Tools */
+  .toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    flex-wrap: wrap;
+  }
 
-    .toolbar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.5);
-      backdrop-filter: blur(6px);
-      border-radius: 0 0 12px 12px;
-    }
+  .toolbar input {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    width: 200px;
+  }
 
-    .toolbar input,
-    .toolbar select,
-    .toggle-dark {
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #93c5fd;
-      outline: none;
-      font-size: 14px;
-      transition: 0.3s;
-      background: var(--card-bg);
-      color: var(--text);
-    }
+  .toolbar select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+  }
 
-    .toggle-dark {
-      cursor: pointer;
-      font-weight: bold;
-      border: none;
-      background: linear-gradient(135deg, #2563eb, #1e3a8a);
-      color: #fff;
-      transition: all 0.3s;
-    }
-    .toggle-dark:hover {
-      transform: scale(1.05);
-      background: linear-gradient(135deg, #1e3a8a, #2563eb);
-    }
+  /* Grid Layout */
+  #fileContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    padding: 12px;
+    animation: fadeIn 0.8s ease;
+  }
+  @media (max-width: 768px) { #fileContainer { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { #fileContainer { grid-template-columns: 1fr; } }
 
-    .file-count {
-      text-align: center;
-      font-size: 14px;
-      margin: 10px 0;
-      font-weight: 500;
-    }
+  /* File Card */
+  .file-card {
+    background: #f8fafc;
+    color: #111;
+    border-radius: 12px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: fadeUp 0.4s ease forwards;
+  }
+  .file-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(255,255,255,0.15);
+  }
 
-    #fileContainer {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      padding: 15px;
-      animation: fadeIn 0.8s ease;
-    }
+  .file-card img {
+    width: 100%;
+    height: 90px;
+    object-fit: contain;
+    background: #e2e8f0;
+  }
 
-    @media (max-width: 768px) {
-      #fileContainer { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      #fileContainer { grid-template-columns: 1fr; }
-    }
+  .file-card h4 {
+    margin: 5px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-    .file-card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      box-shadow: 0 4px 15px var(--shadow);
-      text-align: center;
-      padding: 16px 10px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      transform: translateY(10px);
-      opacity: 0;
-      animation: fadeUp 0.5s forwards;
-    }
+  /* Fullscreen Preview */
+  #previewBox {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
 
-    .file-card:hover {
-      transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
-    }
+  #previewBox iframe, #previewBox img {
+    width: 90%;
+    height: 90%;
+    border: none;
+    border-radius: 10px;
+  }
 
-    .file-card img {
-      width: 70px;
-      height: 70px;
-      object-fit: contain;
-      margin-bottom: 8px;
-    }
+  #closePreview {
+    position: absolute;
+    top: 15px; right: 15px;
+    background: #e11d48;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
 
-    .file-card h4 {
-      font-size: 13px;
-      font-weight: 600;
-      margin: 0 0 5px;
-    }
-
-    .file-card p {
-      font-size: 11px;
-      opacity: 0.8;
-      margin: 0;
-    }
-
-    /* Loading shimmer */
-    .shimmer {
-      width: 100%;
-      height: 140px;
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 37%, #f0f0f0 63%);
-      background-size: 400% 100%;
-      animation: shimmer 1.4s ease infinite;
-      border-radius: 12px;
-    }
-
-    /* Fullscreen PDF Viewer */
-    #pdfViewer {
-      display: none;
-      width: 100vw;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 999;
-      background: #000;
-      animation: fadeIn 0.4s ease;
-    }
-
-    #pdfViewer iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .closePDF {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(239, 68, 68, 0.9);
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 1000;
-    }
-
-    .closePDF:hover {
-      background: #dc2626;
-    }
-
-    /* Animations */
-    @keyframes fadeUp {
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes shimmer {
-      0% { background-position: -400px 0; }
-      100% { background-position: 400px 0; }
-    }
-  </style>
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
 </head>
 <body>
-  <header>📁 Drive Folder Viewer</header>
 
-  <div class="toolbar">
-    <input type="text" id="searchBox" placeholder="Search files...">
-    <select id="filterType">
-      <option value="all">All Files</option>
-      <option value="pdf">PDFs Only</option>
-      <option value="image">Images Only</option>
-    </select>
-    <button class="toggle-dark" id="darkToggle">🌙 Dark Mode</button>
-  </div>
+<header>📺 Drive File Grid Viewer</header>
 
-  <div class="file-count" id="fileCount">Loading files...</div>
+<div class="toolbar">
+  <input type="text" id="searchBox" placeholder="Search files...">
+  <select id="filterType">
+    <option value="all">All</option>
+    <option value="pdf">PDF</option>
+    <option value="image">Image</option>
+  </select>
+</div>
 
-  <div id="fileContainer">
-    <div class="shimmer"></div>
-    <div class="shimmer"></div>
-    <div class="shimmer"></div>
-  </div>
+<div id="fileContainer">
+  <p style="grid-column: span 3; text-align:center;">Loading files...</p>
+</div>
 
-  <div id="pdfViewer">
-    <button class="closePDF" onclick="closePDF()">✖ Close</button>
-    <iframe id="pdfFrame"></iframe>
-  </div>
+<!-- Fullscreen Preview -->
+<div id="previewBox">
+  <button id="closePreview">✖ Close</button>
+  <iframe id="pdfFrame"></iframe>
+  <img id="imgFrame" style="display:none;">
+</div>
 
-  <script>
-    const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
-    const folderId = new URLSearchParams(window.location.search).get("folder");
+<script>
+const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
+const folderId = new URLSearchParams(window.location.search).get("folder");
 
-    if (!folderId) {
-      document.body.innerHTML = "<h3 style='text-align:center;color:red;padding:40px;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
-      throw new Error("No folder ID provided");
-    }
+if (!folderId) {
+  document.body.innerHTML = "<h3 style='text-align:center;color:red;padding:40px;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
+  throw new Error("No folder ID provided");
+}
 
-    let allFiles = [];
-    let currentFilter = "all";
-    const fileContainer = document.getElementById("fileContainer");
-    const fileCountEl = document.getElementById("fileCount");
+let allFiles = [];
+let currentFilter = "all";
+const container = document.getElementById("fileContainer");
+const searchBox = document.getElementById("searchBox");
+const filterSelect = document.getElementById("filterType");
 
-    function extType(mime) {
-      if (mime.includes("pdf")) return "pdf";
-      if (mime.includes("image")) return "image";
-      return "other";
-    }
+function getType(mime) {
+  if (mime.includes("pdf")) return "pdf";
+  if (mime.includes("image")) return "image";
+  return "other";
+}
 
-    async function loadFiles() {
-      try {
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,modifiedTime)&key=${apiKey}`);
-        const data = await res.json();
-        allFiles = data.files || [];
-        animateFileCount(allFiles.length);
-        renderFiles();
-      } catch (err) {
-        console.error(err);
-        fileContainer.innerHTML = "<p style='text-align:center;color:red;'>Error loading files.</p>";
-      }
-    }
+async function loadFiles() {
+  try {
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType)&key=${apiKey}`);
+    const data = await res.json();
+    allFiles = data.files || [];
+    renderFiles();
+  } catch (err) {
+    container.innerHTML = "<p style='text-align:center;color:red;'>⚠️ Error loading files</p>";
+  }
+}
 
-    function animateFileCount(target) {
-      let count = 0;
-      const interval = setInterval(() => {
-        count++;
-        fileCountEl.textContent = `📄 ${count} files loaded`;
-        if (count >= target) clearInterval(interval);
-      }, 40);
-    }
+function renderFiles() {
+  let files = [...allFiles];
+  if (currentFilter !== "all") files = files.filter(f => getType(f.mimeType) === currentFilter);
+  const term = searchBox.value.toLowerCase();
+  if (term) files = files.filter(f => f.name.toLowerCase().includes(term));
 
-    function renderFiles() {
-      fileContainer.innerHTML = "";
-      let files = [...allFiles];
+  if (!files.length) {
+    container.innerHTML = "<p style='text-align:center;'>No files found.</p>";
+    return;
+  }
 
-      if (currentFilter !== "all") {
-        files = files.filter(f => extType(f.mimeType) === currentFilter);
-      }
+  container.innerHTML = "";
+  files.forEach((file, i) => {
+    const type = getType(file.mimeType);
+    const div = document.createElement("div");
+    div.className = "file-card";
+    div.style.animationDelay = `${i * 0.05}s`;
+    const icon =
+      type === "pdf"
+        ? "https://img.icons8.com/color/96/pdf.png"
+        : type === "image"
+        ? `https://drive.google.com/uc?id=${file.id}`
+        : "https://img.icons8.com/color/96/document.png";
+    div.innerHTML = `<img src="${icon}" alt=""><h4>${file.name}</h4>`;
+    div.onclick = () => openPreview(file, type);
+    container.appendChild(div);
+  });
+}
 
-      const searchTerm = document.getElementById("searchBox").value.toLowerCase();
-      if (searchTerm) {
-        files = files.filter(f => f.name.toLowerCase().includes(searchTerm));
-      }
+function openPreview(file, type) {
+  document.getElementById("previewBox").style.display = "flex";
+  const pdfFrame = document.getElementById("pdfFrame");
+  const imgFrame = document.getElementById("imgFrame");
 
-      if (!files.length) {
-        fileContainer.innerHTML = "<p style='text-align:center;'>No files found.</p>";
-        return;
-      }
+  if (type === "pdf") {
+    pdfFrame.style.display = "block";
+    imgFrame.style.display = "none";
+    pdfFrame.src = `https://drive.google.com/file/d/${file.id}/preview`;
+  } else if (type === "image") {
+    imgFrame.style.display = "block";
+    pdfFrame.style.display = "none";
+    imgFrame.src = `https://drive.google.com/uc?id=${file.id}`;
+  }
+}
 
-      files.forEach((file, i) => {
-        const div = document.createElement("div");
-        div.className = "file-card";
-        div.style.animationDelay = `${i * 0.08}s`;
+document.getElementById("closePreview").onclick = () => {
+  document.getElementById("previewBox").style.display = "none";
+  document.getElementById("pdfFrame").src = "";
+  document.getElementById("imgFrame").src = "";
+};
 
-        const type = extType(file.mimeType);
-        const icon =
-          type === "pdf"
-            ? "https://img.icons8.com/color/96/pdf.png"
-            : type === "image"
-            ? "https://img.icons8.com/color/96/image.png"
-            : "https://img.icons8.com/color/96/document.png";
+searchBox.addEventListener("input", renderFiles);
+filterSelect.addEventListener("change", e => { currentFilter = e.target.value; renderFiles(); });
 
-        div.innerHTML = `
-          <img src="${icon}" alt="${type}">
-          <h4>${file.name}</h4>
-          <p>${new Date(file.modifiedTime).toLocaleDateString()}</p>
-        `;
-        div.onclick = () => openPDF(file);
-        fileContainer.appendChild(div);
-      });
-    }
-
-    function openPDF(file) {
-      const viewer = document.getElementById("pdfViewer");
-      const frame = document.getElementById("pdfFrame");
-
-      frame.src = `https://drive.google.com/file/d/${file.id}/preview`;
-      viewer.style.display = "block";
-      document.body.style.overflow = "hidden";
-    }
-
-    function closePDF() {
-      const viewer = document.getElementById("pdfViewer");
-      viewer.style.display = "none";
-      document.body.style.overflow = "auto";
-      document.getElementById("pdfFrame").src = "";
-    }
-
-    document.getElementById("searchBox").addEventListener("input", renderFiles);
-    document.getElementById("filterType").addEventListener("change", e => {
-      currentFilter = e.target.value;
-      renderFiles();
-    });
-    document.getElementById("darkToggle").addEventListener("click", () => {
-      document.body.classList.toggle("dark");
-      const btn = document.getElementById("darkToggle");
-      btn.textContent = document.body.classList.contains("dark") ? "☀️ Light Mode" : "🌙 Dark Mode";
-    });
-
-    loadFiles();
-  </script>
+loadFiles();
+</script>
 </body>
 </html>

@@ -3,26 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drive Explorer</title>
+<title>Google Drive Explorer</title>
 <style>
   body {
     margin: 0;
     font-family: "Poppins", sans-serif;
-    background: #243b55;
+    background: linear-gradient(135deg, #1e293b, #334155);
     color: #fff;
     overflow-x: hidden;
   }
 
   header {
     text-align: center;
-    padding: 15px;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
-    background: linear-gradient(135deg, #1d2671, #c33764);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    padding: 15px;
+    background: linear-gradient(90deg, #2563eb, #9333ea);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
   }
 
   /* Toolbar */
@@ -30,111 +27,119 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
     padding: 10px;
-    flex-wrap: wrap;
   }
 
   .toolbar input {
     padding: 8px 12px;
     border-radius: 10px;
     border: none;
+    width: 230px;
     font-size: 14px;
-    width: 200px;
-  }
-
-  .toolbar button {
-    padding: 8px 14px;
-    background: #1e3a8a;
-    border: none;
-    border-radius: 10px;
-    color: #fff;
-    cursor: pointer;
-    font-weight: bold;
     transition: 0.3s;
   }
-  .toolbar button:hover {
-    background: #334155;
+  .toolbar input:focus {
+    outline: 2px solid #60a5fa;
   }
 
-  /* Grid */
+  /* Breadcrumb */
+  .breadcrumb {
+    text-align: center;
+    font-size: 14px;
+    color: #cbd5e1;
+    padding: 5px 0;
+  }
+  .breadcrumb span {
+    cursor: pointer;
+    color: #93c5fd;
+    transition: color 0.2s;
+  }
+  .breadcrumb span:hover {
+    color: #fff;
+  }
+
+  /* Grid view */
   #fileContainer {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    padding: 12px;
-    animation: fadeIn 0.8s ease;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+    padding: 15px;
+    animation: fadeIn 0.6s ease;
   }
-  @media (max-width: 768px) { #fileContainer { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 480px) { #fileContainer { grid-template-columns: 1fr; } }
 
   .file-card {
     background: #f8fafc;
-    color: #111;
+    color: #0f172a;
     border-radius: 12px;
     overflow: hidden;
     text-align: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     cursor: pointer;
     transition: transform 0.3s, box-shadow 0.3s;
-    animation: fadeUp 0.4s ease forwards;
+    animation: slideUp 0.4s ease both;
   }
-
   .file-card:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(255,255,255,0.15);
+    box-shadow: 0 8px 20px rgba(255,255,255,0.1);
   }
 
   .file-card img {
     width: 100%;
-    height: 100px;
+    height: 120px;
     object-fit: contain;
     background: #e2e8f0;
   }
 
   .file-card h4 {
-    margin: 5px;
+    margin: 6px;
     font-size: 13px;
-    font-weight: bold;
-    color: #0f172a;
+    font-weight: 600;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  /* Preview */
+  /* Lightbox & PDF view */
   #previewBox {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    inset: 0;
     background: rgba(0,0,0,0.95);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 100;
+    z-index: 999;
+    flex-direction: column;
   }
 
   #previewBox iframe, #previewBox img {
     width: 90%;
     height: 90%;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
+    object-fit: contain;
   }
 
   #closePreview {
     position: absolute;
-    top: 15px; right: 15px;
-    background: #e11d48;
-    color: #fff;
+    top: 20px;
+    right: 25px;
+    background: #ef4444;
     border: none;
-    padding: 8px 12px;
+    color: #fff;
     border-radius: 8px;
-    cursor: pointer;
+    padding: 8px 14px;
     font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  #closePreview:hover {
+    background: #dc2626;
   }
 
   /* Animations */
-  @keyframes fadeUp {
+  @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
   }
@@ -146,12 +151,13 @@
 </head>
 <body>
 
-<header>📁 Google Drive Explorer</header>
+<header>📁 Google Drive Viewer</header>
 
 <div class="toolbar">
-  <button id="backBtn" style="display:none;">⬅ Back</button>
   <input type="text" id="searchBox" placeholder="Search files...">
 </div>
+
+<div class="breadcrumb" id="breadcrumb"></div>
 
 <div id="fileContainer">
   <p style="grid-column: span 3; text-align:center;">Loading files...</p>
@@ -167,15 +173,16 @@
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
 const rootId = new URLSearchParams(window.location.search).get("folder");
 if (!rootId) {
-  document.body.innerHTML = "<h3 style='text-align:center;color:red;padding:40px;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
-  throw new Error("No folder ID");
+  document.body.innerHTML = "<h3 style='text-align:center;padding:40px;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
+  throw new Error("Missing Folder ID");
 }
 
-let folderStack = [rootId];
+let folderStack = [{ id: rootId, name: "Home" }];
 let allFiles = [];
+
 const container = document.getElementById("fileContainer");
 const searchBox = document.getElementById("searchBox");
-const backBtn = document.getElementById("backBtn");
+const breadcrumb = document.getElementById("breadcrumb");
 
 function getType(mime) {
   if (mime === "application/vnd.google-apps.folder") return "folder";
@@ -191,15 +198,28 @@ async function loadFiles(folderId) {
     const data = await res.json();
     allFiles = data.files || [];
     renderFiles();
-    backBtn.style.display = folderStack.length > 1 ? "block" : "none";
-  } catch {
-    container.innerHTML = "<p style='text-align:center;color:red;'>⚠️ Failed to load folder.</p>";
+    renderBreadcrumb();
+  } catch (err) {
+    container.innerHTML = "<p style='color:red;text-align:center;'>⚠️ Failed to load files.</p>";
   }
+}
+
+function renderBreadcrumb() {
+  breadcrumb.innerHTML = folderStack.map((f, i) => {
+    if (i === folderStack.length - 1) return `<b>${f.name}</b>`;
+    return `<span onclick="goTo(${i})">${f.name}</span> / `;
+  }).join("");
+}
+
+function goTo(index) {
+  folderStack = folderStack.slice(0, index + 1);
+  loadFiles(folderStack.at(-1).id);
 }
 
 function renderFiles() {
   const term = searchBox.value.toLowerCase();
-  let files = allFiles.filter(f => f.name.toLowerCase().includes(term));
+  const files = allFiles.filter(f => f.name.toLowerCase().includes(term));
+
   if (!files.length) {
     container.innerHTML = "<p style='grid-column: span 3; text-align:center;'>No files found.</p>";
     return;
@@ -222,25 +242,18 @@ function renderFiles() {
         : "https://img.icons8.com/fluency/96/file.png";
 
     card.innerHTML = `<img src="${icon}" alt=""><h4>${file.name}</h4>`;
-
-    if (type === "folder") card.onclick = () => openFolder(file.id);
-    else card.onclick = () => openPreview(file, type);
-
+    card.onclick = () => {
+      if (type === "folder") openFolder(file);
+      else openPreview(file, type);
+    };
     container.appendChild(card);
   });
 }
 
-function openFolder(id) {
-  folderStack.push(id);
-  loadFiles(id);
+function openFolder(file) {
+  folderStack.push({ id: file.id, name: file.name });
+  loadFiles(file.id);
 }
-
-backBtn.onclick = () => {
-  if (folderStack.length > 1) {
-    folderStack.pop();
-    loadFiles(folderStack[folderStack.length - 1]);
-  }
-};
 
 function openPreview(file, type) {
   const previewBox = document.getElementById("previewBox");
@@ -253,14 +266,15 @@ function openPreview(file, type) {
     imgFrame.style.display = "none";
     pdfFrame.src = `https://drive.google.com/file/d/${file.id}/preview`;
   } else if (type === "image") {
-    imgFrame.style.display = "block";
     pdfFrame.style.display = "none";
+    imgFrame.style.display = "block";
     imgFrame.src = `https://drive.google.com/uc?id=${file.id}`;
   }
 }
 
 document.getElementById("closePreview").onclick = () => {
-  document.getElementById("previewBox").style.display = "none";
+  const preview = document.getElementById("previewBox");
+  preview.style.display = "none";
   document.getElementById("pdfFrame").src = "";
   document.getElementById("imgFrame").src = "";
 };

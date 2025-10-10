@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Google Drive Explorer</title>
+<title>Drive Gallery — Empowering Creators</title>
 <style>
   body {
     margin: 0;
@@ -88,7 +88,7 @@
   .file-card img {
     width: 100%;
     height: 120px;
-    object-fit: contain;
+    object-fit: cover;
     background: #e2e8f0;
   }
 
@@ -138,7 +138,20 @@
     background: #dc2626;
   }
 
-  /* Animations */
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+    color: #cbd5e1;
+    background: #1e293b;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  footer span {
+    color: #60a5fa;
+    font-weight: bold;
+  }
+
   @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -151,7 +164,7 @@
 </head>
 <body>
 
-<header>📁 Google Drive Viewer</header>
+<header>📁 Drive Gallery — Empowering Creators</header>
 
 <div class="toolbar">
   <input type="text" id="searchBox" placeholder="Search files...">
@@ -168,6 +181,11 @@
   <iframe id="pdfFrame"></iframe>
   <img id="imgFrame" style="display:none;">
 </div>
+
+<footer>
+  🌟 <span>Drive Gallery</span> helps creators share knowledge, notes, designs, and media directly from Google Drive —  
+  <b>beautifully, instantly, and securely.</b>
+</footer>
 
 <script>
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
@@ -194,7 +212,7 @@ function getType(mime) {
 async function loadFiles(folderId) {
   try {
     container.innerHTML = "<p style='grid-column: span 3; text-align:center;'>⏳ Loading...</p>";
-    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType)&key=${apiKey}`);
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink)&key=${apiKey}`);
     const data = await res.json();
     allFiles = data.files || [];
     renderFiles();
@@ -238,7 +256,7 @@ function renderFiles() {
         : type === "pdf"
         ? "https://img.icons8.com/color/96/pdf.png"
         : type === "image"
-        ? `https://drive.google.com/uc?id=${file.id}`
+        ? (file.thumbnailLink || `https://drive.google.com/uc?id=${file.id}`)
         : "https://img.icons8.com/fluency/96/file.png";
 
     card.innerHTML = `<img src="${icon}" alt=""><h4>${file.name}</h4>`;
@@ -268,7 +286,7 @@ function openPreview(file, type) {
   } else if (type === "image") {
     pdfFrame.style.display = "none";
     imgFrame.style.display = "block";
-    imgFrame.src = `https://drive.google.com/uc?id=${file.id}`;
+    imgFrame.src = file.thumbnailLink || `https://drive.google.com/uc?id=${file.id}`;
   }
 }
 

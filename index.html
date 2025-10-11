@@ -3,193 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Drive Explorer | Smart Folder Viewer</title>
+<title>Drive TV Viewer</title>
 <style>
-  :root {
-    --bg1: #1e293b;
-    --bg2: #0f172a;
-    --accent: #3b82f6;
-    --card-bg: #f8fafc;
-  }
-  * { box-sizing: border-box; }
   body {
     margin: 0;
     font-family: "Poppins", sans-serif;
-    background: linear-gradient(135deg, var(--bg1), var(--bg2));
-    color: #fff;
+    background: radial-gradient(circle at top left, #0f172a, #1e293b);
+    color: #f8fafc;
     overflow-x: hidden;
-    min-height: 100vh;
   }
 
   header {
     text-align: center;
-    padding: 15px;
-    background: linear-gradient(90deg, #3b82f6, #9333ea);
-    font-size: 20px;
+    font-size: 24px;
+    padding: 16px;
     font-weight: 600;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    background: linear-gradient(90deg, #3b82f6, #9333ea);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    letter-spacing: 1px;
   }
 
-  .toolbar {
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-  }
-  .toolbar input {
-    width: 80%;
-    max-width: 400px;
-    padding: 10px 15px;
-    border-radius: 25px;
-    border: none;
-    font-size: 14px;
-    color: #0f172a;
-    outline: none;
-    transition: 0.3s;
-  }
-  .toolbar input:focus {
-    box-shadow: 0 0 8px #60a5fa;
-  }
-
-  .breadcrumb {
+  .search-bar {
     text-align: center;
-    color: #cbd5e1;
-    font-size: 14px;
-    margin: 5px 0 15px;
+    padding: 12px;
   }
-  .breadcrumb span {
-    color: #93c5fd;
-    cursor: pointer;
+  .search-bar input {
+    width: 85%;
+    max-width: 420px;
+    padding: 10px 16px;
+    border-radius: 50px;
+    border: none;
+    font-size: 15px;
+    outline: none;
+    color: #1e293b;
+    box-shadow: 0 0 10px rgba(59,130,246,0.4);
   }
 
-  #fileContainer {
+  .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 15px;
-    padding: 10px 20px 60px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+    padding: 20px;
   }
 
-  .file-card {
-    background: var(--card-bg);
-    color: #0f172a;
+  .card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
     border-radius: 16px;
     overflow: hidden;
-    text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     cursor: pointer;
-    transform: scale(1);
-    transition: transform 0.25s ease, box-shadow 0.25s;
-    animation: fadeUp 0.4s ease both;
-  }
-  .file-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(59,130,246,0.4);
-  }
-  .file-card img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    background: #e2e8f0;
-  }
-  .file-card h4 {
-    font-size: 13px;
-    margin: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    animation: fadeIn 0.6s ease both;
   }
 
-  /* Fullscreen Preview */
-  #previewBox {
+  .card:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 20px #3b82f6;
+  }
+
+  .card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+
+  .card h3 {
+    text-align: center;
+    padding: 10px;
+    margin: 0;
+    color: #60a5fa;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* TV-style fullscreen viewer */
+  #viewer {
+    display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.95);
-    display: none;
+    background: rgba(0,0,0,0.9);
     justify-content: center;
     align-items: center;
-    flex-direction: column;
     z-index: 999;
+    animation: fadeIn 0.5s ease both;
   }
-  #previewBox iframe, #previewBox img {
+
+  #viewer iframe, #viewer img {
     width: 90%;
-    height: 90%;
-    border-radius: 12px;
+    height: 85%;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(59,130,246,0.6);
     border: none;
     object-fit: contain;
   }
-  #closePreview {
+
+  #closeBtn {
     position: absolute;
-    top: 15px;
-    right: 20px;
+    top: 20px;
+    right: 25px;
     background: #ef4444;
     border: none;
+    padding: 10px 14px;
     color: white;
-    padding: 8px 12px;
-    font-weight: bold;
     border-radius: 8px;
+    font-size: 14px;
     cursor: pointer;
+    font-weight: bold;
   }
 
   footer {
     text-align: center;
-    padding: 15px;
+    padding: 20px;
     background: #0f172a;
-    color: #cbd5e1;
-    font-size: 13px;
-    border-top: 1px solid rgba(255,255,255,0.1);
-  }
-  footer span { color: #60a5fa; font-weight: bold; }
-
-  @keyframes fadeUp {
-    from {opacity: 0; transform: translateY(20px);}
-    to {opacity: 1; transform: translateY(0);}
+    color: #9ca3af;
+    font-size: 14px;
   }
 
-  @media(max-width: 600px) {
-    .file-card img { height: 100px; }
-    .file-card h4 { font-size: 12px; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 </style>
 </head>
 <body>
 
-<header>📂 Drive Explorer By JKBose Helper</header>
+<header>📺 Drive TV Viewer</header>
 
-<div class="toolbar">
-  <input id="searchBox" type="text" placeholder="Search files or folders...">
+<div class="search-bar">
+  <input id="search" placeholder="Search content..." type="text" />
 </div>
 
-<div class="breadcrumb" id="breadcrumb"></div>
-
-<div id="fileContainer">
-  <p style="text-align:center; grid-column: span 3;">Loading files...</p>
+<div id="fileContainer" class="grid">
+  <p style="grid-column: span 3; text-align:center;">⏳ Loading your content...</p>
 </div>
 
-<div id="previewBox">
-  <button id="closePreview">✖ Close</button>
+<div id="viewer">
+  <button id="closeBtn">✖ Close</button>
   <iframe id="pdfFrame"></iframe>
   <img id="imgFrame" style="display:none;">
 </div>
 
 <footer>
-  Drive Explorer <span>Developer Rather Aabid❤️</span> — a modern way to browse, preview, and share your Drive folders beautifully.  
-  Built to help <b>creators</b> showcase content seamlessly.
+  🌟 Built for <b>Creators</b> — A modern Drive experience like a digital streaming gallery.  
+  View, share, and enjoy your Drive content visually!
 </footer>
 
 <script>
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
-const rootId = new URLSearchParams(window.location.search).get("folder");
-if (!rootId) {
-  document.body.innerHTML = "<h3 style='padding:40px;text-align:center;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
+const folderId = new URLSearchParams(window.location.search).get("folder");
+if (!folderId) {
+  document.body.innerHTML = "<h3 style='padding:40px;text-align:center;color:red;'>❌ Please add ?folder=YOUR_FOLDER_ID in URL</h3>";
   throw new Error("Missing folder ID");
 }
 
-let folderStack = [{ id: rootId, name: "Home" }];
+const container = document.getElementById("fileContainer");
+const searchBox = document.getElementById("search");
+
 let allFiles = [];
 
-const container = document.getElementById("fileContainer");
-const breadcrumb = document.getElementById("breadcrumb");
-const searchBox = document.getElementById("searchBox");
+async function loadFiles(id) {
+  container.innerHTML = "<p style='text-align:center;grid-column: span 3;'>📡 Loading...</p>";
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents&fields=files(id,name,mimeType,thumbnailLink)&key=${apiKey}`);
+  const data = await res.json();
+  allFiles = data.files || [];
+  renderFiles();
+}
+
+function renderFiles() {
+  const query = searchBox.value.toLowerCase();
+  const files = allFiles.filter(f => f.name.toLowerCase().includes(query));
+  container.innerHTML = "";
+  if (!files.length) {
+    container.innerHTML = "<p style='text-align:center;grid-column: span 3;'>No files found 🚫</p>";
+    return;
+  }
+
+  files.forEach(file => {
+    const type = getType(file.mimeType);
+    const card = document.createElement("div");
+    card.className = "card";
+    const thumb =
+      type === "folder" ? "https://img.icons8.com/color/96/folder-invoices.png"
+      : type === "pdf" ? "https://img.icons8.com/color/96/pdf.png"
+      : type === "image" ? (file.thumbnailLink || `https://drive.google.com/uc?id=${file.id}`)
+      : "https://img.icons8.com/fluency/96/file.png";
+
+    card.innerHTML = `<img src="${thumb}" alt=""><h3>${file.name}</h3>`;
+    card.onclick = () => openFile(file, type);
+    container.appendChild(card);
+  });
+}
 
 function getType(mime) {
   if (mime === "application/vnd.google-apps.folder") return "folder";
@@ -198,76 +201,16 @@ function getType(mime) {
   return "other";
 }
 
-async function loadFiles(folderId) {
-  container.innerHTML = "<p style='grid-column: span 3; text-align:center;'>⏳ Loading...</p>";
-  try {
-    const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,thumbnailLink)&key=${apiKey}`);
-    const data = await res.json();
-    allFiles = data.files || [];
-    renderFiles();
-    updateBreadcrumb();
-  } catch (err) {
-    container.innerHTML = "<p style='color:red; text-align:center;'>⚠️ Failed to load files.</p>";
-  }
-}
-
-function updateBreadcrumb() {
-  breadcrumb.innerHTML = folderStack.map((f, i) => 
-    i === folderStack.length - 1 
-      ? `<b>${f.name}</b>` 
-      : `<span onclick='goTo(${i})'>${f.name}</span> / `
-  ).join("");
-}
-
-function goTo(index) {
-  folderStack = folderStack.slice(0, index + 1);
-  loadFiles(folderStack.at(-1).id);
-}
-
-function renderFiles() {
-  const term = searchBox.value.toLowerCase();
-  const files = allFiles.filter(f => f.name.toLowerCase().includes(term));
-  container.innerHTML = "";
-
-  if (!files.length) {
-    container.innerHTML = "<p style='grid-column: span 3;text-align:center;'>No files found.</p>";
+function openFile(file, type) {
+  if (type === "folder") {
+    loadFiles(file.id);
     return;
   }
-
-  files.forEach(file => {
-    const type = getType(file.mimeType);
-    const card = document.createElement("div");
-    card.className = "file-card";
-
-    const icon =
-      type === "folder"
-        ? "https://img.icons8.com/color/96/folder-invoices.png"
-        : type === "pdf"
-        ? "https://img.icons8.com/color/96/pdf.png"
-        : type === "image"
-        ? (file.thumbnailLink || `https://drive.google.com/uc?id=${file.id}`)
-        : "https://img.icons8.com/fluency/96/file.png";
-
-    card.innerHTML = `<img src="${icon}" alt=""><h4>${file.name}</h4>`;
-    card.onclick = () => {
-      if (type === "folder") openFolder(file);
-      else openPreview(file, type);
-    };
-    container.appendChild(card);
-  });
-}
-
-function openFolder(file) {
-  folderStack.push({ id: file.id, name: file.name });
-  loadFiles(file.id);
-}
-
-function openPreview(file, type) {
-  const box = document.getElementById("previewBox");
+  const viewer = document.getElementById("viewer");
   const pdf = document.getElementById("pdfFrame");
   const img = document.getElementById("imgFrame");
 
-  box.style.display = "flex";
+  viewer.style.display = "flex";
   if (type === "pdf") {
     pdf.style.display = "block";
     img.style.display = "none";
@@ -279,14 +222,15 @@ function openPreview(file, type) {
   }
 }
 
-document.getElementById("closePreview").onclick = () => {
-  document.getElementById("previewBox").style.display = "none";
+document.getElementById("closeBtn").onclick = () => {
+  document.getElementById("viewer").style.display = "none";
   document.getElementById("pdfFrame").src = "";
   document.getElementById("imgFrame").src = "";
 };
 
 searchBox.addEventListener("input", renderFiles);
-loadFiles(rootId);
+loadFiles(folderId);
 </script>
+
 </body>
 </html>

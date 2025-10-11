@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Drive Media Explorer</title>
 <style>
   body {
@@ -51,29 +51,6 @@
     color: #64748b;
   }
 
-  .filter-buttons {
-    text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .filter-buttons button {
-    background: #fff;
-    border: 1px solid #cbd5e1;
-    border-radius: 20px;
-    padding: 6px 14px;
-    margin: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 500;
-  }
-
-  .filter-buttons button.active,
-  .filter-buttons button:hover {
-    background: #2563eb;
-    color: white;
-    border-color: #2563eb;
-  }
-
   .back-btn {
     display: none;
     background: #2563eb;
@@ -87,9 +64,10 @@
     display: block;
   }
 
+  /* GRID VIEW — 3 columns */
   .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     padding: 16px;
     justify-items: center;
@@ -102,7 +80,6 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.08);
     transition: transform 0.3s, box-shadow 0.3s;
     width: 100%;
-    max-width: 180px;
     cursor: pointer;
     text-align: center;
     animation: fadeIn 0.5s ease both;
@@ -115,14 +92,14 @@
 
   .card img {
     width: 100%;
-    height: 110px;
+    height: 120px;
     object-fit: cover;
     border-bottom: 2px solid #e2e8f0;
   }
 
   .card h3 {
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 600;
     padding: 8px;
     color: #1d4ed8;
     text-overflow: ellipsis;
@@ -141,11 +118,10 @@
   }
 
   #viewer iframe, #viewer img {
-    width: 90%;
-    height: 85%;
+    width: 95%;
+    height: 90%;
     border-radius: 14px;
     border: none;
-    box-shadow: 0 0 40px rgba(59,130,246,0.6);
     object-fit: contain;
   }
 
@@ -168,6 +144,14 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Responsive grid */
+  @media (max-width: 900px) {
+    .grid-container { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .grid-container { grid-template-columns: repeat(1, 1fr); }
+  }
+
   footer {
     text-align: center;
     padding: 14px;
@@ -179,20 +163,13 @@
 </head>
 <body>
 
-<header>📂 Drive Media Explorer</header>
+<header>📁 Drive Media Explorer</header>
 
 <div class="search-bar">
   <input id="searchBox" type="text" placeholder="🔍 Search files..." />
 </div>
 
 <div class="breadcrumb" id="breadcrumb">Home</div>
-
-<div class="filter-buttons">
-  <button class="active" data-type="all">All</button>
-  <button data-type="folder">📁 Folders</button>
-  <button data-type="pdf">📕 PDFs</button>
-  <button data-type="image">🖼️ Images</button>
-</div>
 
 <button id="backBtn" class="back-btn" onclick="goBack()">⬅ Back</button>
 
@@ -207,7 +184,7 @@
   <img id="imgFrame" style="display:none;">
 </div>
 
-<footer>🌟 Built to help creators easily share Google Drive content beautifully.</footer>
+<footer>🌟 Built to help creators beautifully showcase their Google Drive content.</footer>
 
 <script>
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
@@ -215,11 +192,9 @@ let currentFolder = new URLSearchParams(window.location.search).get("folder");
 let folderStack = [];
 const container = document.getElementById("fileContainer");
 const searchBox = document.getElementById("searchBox");
-const filterButtons = document.querySelectorAll(".filter-buttons button");
 const breadcrumb = document.getElementById("breadcrumb");
 const backBtn = document.getElementById("backBtn");
 let allFiles = [];
-let activeFilter = "all";
 
 if (!currentFolder) {
   document.body.innerHTML = "<h3 style='padding:40px;text-align:center;color:red;'>❌ Add ?folder=YOUR_FOLDER_ID in URL</h3>";
@@ -230,6 +205,7 @@ async function loadFiles(id, name = "Home") {
   breadcrumb.textContent = name;
   backBtn.style.display = folderStack.length ? "block" : "none";
   container.innerHTML = "<p style='text-align:center;grid-column: span 3;'>📡 Loading...</p>";
+
   const res = await fetch(`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents&fields=files(id,name,mimeType,thumbnailLink)&key=${apiKey}`);
   const data = await res.json();
   allFiles = data.files || [];
@@ -238,13 +214,11 @@ async function loadFiles(id, name = "Home") {
 
 function renderFiles() {
   const query = searchBox.value.toLowerCase();
-  const filtered = allFiles.filter(f => f.name.toLowerCase().includes(query))
-    .filter(f => activeFilter === "all" || getType(f.mimeType) === activeFilter);
+  const filtered = allFiles.filter(f => f.name.toLowerCase().includes(query));
 
   container.innerHTML = "";
-
   if (!filtered.length) {
-    container.innerHTML = "<p style='grid-column: span 3;text-align:center;color:#64748b;'>No results 🚫</p>";
+    container.innerHTML = "<p style='grid-column: span 3;text-align:center;color:#64748b;'>No files found 🚫</p>";
     return;
   }
 
@@ -315,15 +289,6 @@ document.getElementById("closeBtn").onclick = () => {
 };
 
 searchBox.addEventListener("input", renderFiles);
-
-filterButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    filterButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    activeFilter = btn.dataset.type;
-    renderFiles();
-  });
-});
 
 loadFiles(currentFolder);
 </script>

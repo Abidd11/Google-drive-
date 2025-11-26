@@ -231,11 +231,12 @@ select{
 #viewer.active iframe{
     transform: scale(1);
 }
+/* Updated Close/Back button style and text */
 #closeViewer{
   position:absolute;
   top:20px;
   right:20px;
-  background:#ef4444;
+  background:var(--primary); /* Use Primary color for 'Back' button */
   color:#fff;
   border:none;
   border-radius:6px;
@@ -243,10 +244,14 @@ select{
   cursor:pointer;
   font-weight: 600;
   opacity: 0.9;
-  transition: opacity .2s;
+  transition: opacity .2s, background .3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 #closeViewer:hover{
     opacity: 1;
+    background: #0e1e69; /* Slightly darker primary on hover */
 }
 
 /* --- 9. Responsive adjustments for larger screens --- */
@@ -292,7 +297,9 @@ select{
 </div>
 
 <div id="viewer">
-  <button id="closeViewer">✖ Close</button>
+  <button id="closeViewer">
+    <span style="font-size: 1.2em;">&larr;</span> Back
+  </button>
   <iframe id="pdfViewer"></iframe>
 </div>
 

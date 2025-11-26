@@ -6,23 +6,25 @@
 <title>JKBose Helper</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-/* --- 1. Root Variables & Colors --- */
+/* --- 1. Root Variables & New Colors --- */
 :root{
-  --primary: #3b82f6; /* Blue 500 */
-  --accent: #a855f7; /* Violet 500 */
-  --bg: #f8fafc; /* Slate 50 */
-  --text: #1f2937; /* Gray 800 */
-  --card: #ffffff;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+  --primary: #1B2E8D; /* Deep Indigo - Header, FAB */
+  --accent: #A855F7; /* Violet (kept for gradient consistency) */
+  --bg: #E6E6F2;     /* Light Lavender - Main Background */
+  --card: #FFFFFF;   /* White - Cards */
+  --card-bg-light: #C5CAE8; /* Medium Lavender - Used for subtle depth */
+  --text: #1f2937;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 body.dark{
-  --primary: #60a5fa; /* Blue 400 */
-  --accent: #c084fc; /* Violet 400 */
-  --bg: #111827; /* Gray 900 */
-  --text: #f3f4f6; /* Gray 100 */
-  --card: #1f2937; /* Gray 800 */
+  --primary: #60a5fa;
+  --accent: #c084fc;
+  --bg: #1f2937;
+  --card: #374151;
+  --card-bg-light: #4b5563;
+  --text: #f3f4f6;
 }
 
 /* --- 2. Base Styles --- */
@@ -39,11 +41,11 @@ header{
   background:var(--primary);
   color:#fff;
   text-align:center;
-  padding:16px;
+  padding:20px 16px; /* Increased padding */
   font-weight:700;
-  font-size:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.1);
-  letter-spacing:0.5px;
+  font-size:22px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.2);
+  letter-spacing:1px;
 }
 
 /* --- 4. Top Controls (Topbar) --- */
@@ -52,40 +54,42 @@ header{
   flex-wrap:wrap;
   justify-content:center;
   gap:12px;
-  padding:18px 14px;
+  padding:16px 20px;
   background:var(--card);
   box-shadow:var(--shadow-sm);
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 .search input, select{
-  padding:10px 16px;
-  border-radius:10px;
-  border:1px solid #e5e7eb;
+  padding:12px 18px; /* Larger touch targets */
+  border-radius:12px;
+  border:none; /* Removed border */
+  background:var(--card-bg-light); /* New input background color */
   font-size:14px;
   outline:none;
-  width:200px;
-  background:var(--bg);
+  width:100%; /* Default to full width for mobile */
+  max-width:250px;
   color:var(--text);
-  transition:border-color .3s, box-shadow .3s;
+  transition:all .3s;
 }
 .search input:focus, select:focus{
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px rgba(59, 130, 246, 0.2);
+  background:var(--card);
+  box-shadow:0 0 0 3px var(--primary); /* Focus ring effect */
 }
 select{
   width: auto;
-  min-width: 120px;
-  background:var(--bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='lightgray'><path fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /></svg>") no-repeat right 10px center;
+  min-width: 140px;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  padding-right: 30px;
+  padding-right: 35px;
+  background: var(--card-bg-light) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='gray'><path fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /></svg>") no-repeat right 10px center;
+  background-size: 18px;
 }
 .toggle{
-  background:var(--bg);
+  background:var(--card-bg-light);
   border:none;
-  border-radius:10px;
-  padding:10px 14px;
+  border-radius:12px;
+  padding:10px 16px;
   cursor:pointer;
   font-weight:600;
   color:var(--text);
@@ -99,16 +103,17 @@ select{
 
 /* Breadcrumb Styling */
 #breadcrumb{
-  padding: 8px 14px;
+  padding: 10px 20px;
   font-size:14px !important;
-  color:#6b7280 !important;
+  color:#4b5563 !important;
   font-weight: 500;
+  text-align: left !important;
 }
 
 /* --- 5. Grid Layout and Animation --- */
 .grid-container{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); /* Better mobile column sizing */
   gap:20px;
   padding:20px;
 }
@@ -124,24 +129,23 @@ select{
 /* --- 6. Card Styles and Interactions --- */
 .card{
   background:var(--card);
-  border-radius:12px;
+  border-radius:16px; /* More rounded */
   box-shadow:var(--shadow-md);
   transition:transform .3s ease, box-shadow .3s ease;
   cursor:pointer;
   overflow:hidden;
 }
 .card:hover{
-  transform:translateY(-8px) scale(1.02);
+  transform:translateY(-10px) scale(1.02); /* More aggressive lift */
   box-shadow:var(--shadow-lg);
 }
 .thumb{
-  height:140px;
-  background:#eff6ff;
+  height:160px; /* Taller on mobile screens */
+  background:var(--card-bg-light);
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  border-bottom: 1px solid #f3f4f6;
 }
 .thumb img{
   width:100%;
@@ -153,20 +157,20 @@ select{
   transform: scale(1.05);
 }
 .card-body{
-  padding:12px;
+  padding:15px;
 }
 .card h4{
   margin:0;
-  font-size:15px;
-  font-weight:600;
-  color:var(--text);
+  font-size:16px;
+  font-weight:700;
+  color:var(--primary); /* Title color is the deep indigo */
   text-overflow:ellipsis;
   overflow:hidden;
   white-space:nowrap;
 }
 .card p{
-  font-size:12px;
-  color:#9ca3af;
+  font-size:13px;
+  color:#6b7280;
   margin-top:4px;
   font-weight: 500;
 }
@@ -183,18 +187,17 @@ select{
 }
 .fab button{
   border:none;
-  padding:14px;
+  padding:16px; /* Larger FAB */
   border-radius:50%;
-  background:linear-gradient(45deg,var(--primary),var(--accent));
+  background:var(--primary); /* Solid primary color */
   color:#fff;
-  font-size:18px;
+  font-size:20px;
   cursor:pointer;
-  box-shadow:0 6px 16px rgba(0,0,0,0.3);
+  box-shadow:0 6px 16px rgba(27, 46, 141, 0.4);
   transition:transform .3s ease, box-shadow .3s ease;
 }
 .fab button:hover{
-  transform:scale(1.15) rotate(3deg);
-  box-shadow:0 10px 20px rgba(0,0,0,0.4);
+  transform:scale(1.15) rotate(5deg);
 }
 
 /* --- 8. Viewer Animation --- */
@@ -215,9 +218,9 @@ select{
 }
 #viewer iframe{
   width:95%;
-  max-width: 1000px;
+  max-width: 1200px; /* Wider viewer */
   height:95%;
-  max-height: 800px;
+  max-height: 900px;
   border:0;
   background:var(--card);
   border-radius:10px;
@@ -236,7 +239,7 @@ select{
   color:#fff;
   border:none;
   border-radius:6px;
-  padding:8px 14px;
+  padding:10px 16px;
   cursor:pointer;
   font-weight: 600;
   opacity: 0.9;
@@ -246,12 +249,17 @@ select{
     opacity: 1;
 }
 
-/* --- 9. Responsive adjustments --- */
-@media(max-width:768px){
-  .topbar{flex-direction:column; align-items: stretch;}
-  .search input, select{width:100%;}
-  .toggle{width:100%;}
-  .thumb{height:180px;}
+/* --- 9. Responsive adjustments for larger screens --- */
+@media(min-width: 768px) {
+  .topbar{justify-content: space-between; max-width: 900px; margin: 0 auto 15px;}
+  .search input {max-width: 300px;}
+  .grid-container{max-width: 900px; margin: 0 auto;}
+  .toggle {padding: 10px 20px;}
+}
+@media(max-width: 600px){
+  .grid-container{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+  .search input, select, .toggle{max-width: 100%;} /* Ensure full width on smallest screens */
+  .fab button {padding: 12px; font-size: 18px;}
 }
 </style>
 </head>
@@ -272,10 +280,10 @@ select{
   <button class="toggle" id="modeToggle">🌙</button>
 </div>
 
-<div id="breadcrumb" style="text-align:center;">Home</div>
+<div id="breadcrumb">Home</div>
 
 <div id="fileContainer" class="grid-container">
-  <div style="grid-column:span all;text-align:center;color:#64748b;padding: 20px;">Loading...</div>
+  <div style="grid-column:span all;text-align:center;color:#4b5563;padding: 20px;">Loading...</div>
 </div>
 
 <div class="fab">
@@ -359,24 +367,25 @@ function getType(mime){
   return"file";
 }
 function getThumb(f,type){
-  // Use a softer blue for folder and a light red for PDF icons
-  if(type==="folder")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#bfdbfe'/><text x='50' y='50' font-size='40' text-anchor='middle'>📁</text></svg>`);
-  if(type==="pdf")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#fee2e2'/><text x='50' y='50' font-size='40' text-anchor='middle'>📄</text></svg>`);
+  // Updated SVG colors to match the new light palette
+  if(type==="folder")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#C5CAE8'/><text x='50' y='50' font-size='40' text-anchor='middle'>📁</text></svg>`);
+  if(type==="pdf")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#C5CAE8'/><text x='50' y='50' font-size='40' text-anchor='middle'>📄</text></svg>`);
   if(type==="image")return f.thumbnailLink||`https://drive.google.com/uc?id=${f.id}`;
   return f.thumbnailLink||"https://via.placeholder.com/140?text=File";
 }
 
-/* Open item - Added 'active' class for viewer animation and FIXED PDF URL */
+/* Open item - Fixed PDF Viewer with the Docs Viewer URL */
 function openItem(file,type){
   if(type==="folder"){folderStack.push(currentFolder);currentFolder=file.id;loadFolder(file.id,file.name);return;}
   
   viewer.classList.add("active");
   
   if(type==="pdf"){
-      // FIXED: Use Google Docs Viewer for more reliable PDF embedding
+      // Uses Google Docs Viewer which is more reliable for embedding public PDFs.
+      // NOTE: The target file on Google Drive MUST be publicly shared for this to work.
       pdfViewer.src=`https://docs.google.com/gview?url=https://drive.google.com/uc?id=${file.id}&embedded=true`;
   } else {
-      // Use the standard public file download URL for other file types
+      // Use the standard Google Drive preview for other file types/images
       pdfViewer.src=`https://drive.google.com/file/d/${file.id}/preview`;
   }
 }
@@ -390,7 +399,7 @@ backBtn.onclick=()=>{
 };
 homeBtn.onclick=()=>{location.href=location.pathname+"?folder="+(new URLSearchParams(window.location.search).get("folder"));};
 
-/* Close viewer - Removed 'display:flex' from JS, relying on 'active' class */
+/* Close viewer */
 closeViewer.onclick=()=>{viewer.classList.remove("active");pdfViewer.src="";};
 
 /* Search + Filter */

@@ -3,177 +3,231 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title></title>
+<title>JKBose Helper</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
+/* --- 1. Root Variables & Colors --- */
 :root{
-  --primary:#2563eb;
-  --accent:#9333ea;
-  --bg:#f1f5f9;
-  --text:#1e293b;
-  --card:#fff;
+  --primary: #3b82f6; /* Blue 500 */
+  --accent: #a855f7; /* Violet 500 */
+  --bg: #f8fafc; /* Slate 50 */
+  --text: #1f2937; /* Gray 800 */
+  --card: #ffffff;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 body.dark{
-  --primary:#60a5fa;
-  --accent:#c084fc;
-  --bg:#0f172a;
-  --text:#f8fafc;
-  --card:#1e293b;
+  --primary: #60a5fa; /* Blue 400 */
+  --accent: #c084fc; /* Violet 400 */
+  --bg: #111827; /* Gray 900 */
+  --text: #f3f4f6; /* Gray 100 */
+  --card: #1f2937; /* Gray 800 */
 }
 
+/* --- 2. Base Styles --- */
 body{
   margin:0;
-  font-family:"Poppins",sans-serif;
+  font-family: 'Poppins', sans-serif;
   background:var(--bg);
   color:var(--text);
-  transition:background .3s,color .3s;
+  transition:background .4s ease,color .4s ease; /* Smoother color/background transition */
 }
 
-/* Header */
+/* --- 3. Header --- */
 header{
-  background:linear-gradient(90deg,var(--primary),var(--accent));
+  background:var(--primary); /* Solid primary color for a cleaner look */
   color:#fff;
   text-align:center;
   padding:16px;
-  font-weight:600;
-  font-size:18px;
-  box-shadow:0 4px 14px rgba(0,0,0,0.1);
+  font-weight:700;
+  font-size:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  letter-spacing:0.5px;
 }
 
-/* Top Controls */
+/* --- 4. Top Controls (Topbar) --- */
 .topbar{
   display:flex;
   flex-wrap:wrap;
   justify-content:center;
-  gap:10px;
-  padding:14px;
+  gap:12px;
+  padding:18px 14px;
+  background:var(--card); /* Make controls stand out slightly */
+  box-shadow:var(--shadow-sm);
+  margin-bottom: 12px;
 }
-.search input{
-  padding:10px 14px;
-  border-radius:8px;
-  border:1px solid #dbeafe;
+.search input, select{
+  padding:10px 16px;
+  border-radius:10px; /* More rounded */
+  border:1px solid #e5e7eb; /* Lighter border */
   font-size:14px;
   outline:none;
   width:200px;
-  background:var(--card);
+  background:var(--bg); /* Input background matches main background */
   color:var(--text);
+  transition:border-color .3s, box-shadow .3s;
+}
+.search input:focus, select:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(59, 130, 246, 0.2); /* Focus ring effect */
 }
 select{
-  padding:9px 12px;
-  border-radius:8px;
-  border:1px solid #dbeafe;
-  font-size:14px;
-  background:var(--card);
-  color:var(--text);
+  width: auto;
+  min-width: 120px;
+  background:var(--bg) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='lightgray'><path fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /></svg>") no-repeat right 10px center;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 30px;
 }
 .toggle{
-  background:var(--card);
+  background:var(--bg);
   border:none;
-  border-radius:8px;
-  padding:8px 12px;
+  border-radius:10px;
+  padding:10px 14px;
   cursor:pointer;
   font-weight:600;
   color:var(--text);
+  transition:background .3s, transform .2s;
+}
+.toggle:hover{
+  background:var(--primary);
+  color:#fff;
+  transform: translateY(-1px);
 }
 
-/* Grid Layout */
+/* Breadcrumb Styling */
+#breadcrumb{
+  padding: 8px 14px;
+  font-size:14px !important;
+  color:#6b7280 !important;
+  font-weight: 500;
+}
+
+/* --- 5. Grid Layout and Animation --- */
 .grid-container{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-  padding:14px;
-  animation:fadeIn .4s ease;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); /* Auto-fit for better responsiveness */
+  gap:20px; /* Increased gap */
+  padding:20px;
 }
-@keyframes fadeIn{
+.card{
+  animation:fadeInUp .4s ease backwards; /* General fade-in-up animation */
+}
+/* Staggered animation classes applied dynamically in JS */
+
+@keyframes fadeInUp{
   from{opacity:0;transform:translateY(20px);}
   to{opacity:1;transform:translateY(0);}
 }
 
-/* Card */
+/* --- 6. Card Styles and Interactions --- */
 .card{
   background:var(--card);
   border-radius:12px;
-  overflow:hidden;
-  box-shadow:0 4px 10px rgba(0,0,0,0.08);
-  transition:transform .25s, box-shadow .25s;
+  box-shadow:var(--shadow-md);
+  transition:transform .3s ease, box-shadow .3s ease; /* Smoother transitions */
   cursor:pointer;
-  position:relative;
+  overflow:hidden;
 }
 .card:hover{
-  transform:translateY(-5px);
-  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+  transform:translateY(-8px) scale(1.02); /* More lift and a slight scale */
+  box-shadow:var(--shadow-lg);
 }
 .thumb{
-  height:120px;
-  background:#eef2ff;
+  height:140px; /* Slightly taller thumbnail */
+  background:#eff6ff; /* Lighter background for thumbnails */
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
+  border-bottom: 1px solid #f3f4f6;
 }
 .thumb img{
   width:100%;
   height:100%;
   object-fit:cover;
+  transition: transform 0.4s ease; /* Image zoom on hover */
+}
+.card:hover .thumb img{
+  transform: scale(1.05);
 }
 .card-body{
-  padding:10px;
+  padding:12px;
 }
 .card h4{
   margin:0;
-  font-size:14px;
+  font-size:15px;
   font-weight:600;
-  color:var(--primary);
+  color:var(--text); /* Title color is now the main text color */
   text-overflow:ellipsis;
   overflow:hidden;
   white-space:nowrap;
 }
 .card p{
   font-size:12px;
-  color:#64748b;
+  color:#9ca3af; /* Subdued color for type */
   margin-top:4px;
+  font-weight: 500;
 }
 
-/* Floating Buttons */
+/* --- 7. Floating Action Buttons (FAB) --- */
 .fab{
   position:fixed;
   bottom:20px;
   right:20px;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:12px;
   z-index:1000;
 }
 .fab button{
   border:none;
-  padding:12px;
+  padding:14px;
   border-radius:50%;
   background:linear-gradient(45deg,var(--primary),var(--accent));
   color:#fff;
-  font-size:16px;
+  font-size:18px;
   cursor:pointer;
-  box-shadow:0 4px 14px rgba(0,0,0,0.2);
-  transition:transform .3s;
+  box-shadow:0 6px 16px rgba(0,0,0,0.3);
+  transition:transform .3s ease, box-shadow .3s ease;
 }
 .fab button:hover{
-  transform:scale(1.1);
+  transform:scale(1.15) rotate(3deg); /* More dynamic hover effect */
+  box-shadow:0 10px 20px rgba(0,0,0,0.4);
 }
 
-/* Fullscreen Viewer */
+/* --- 8. Viewer Animation --- */
 #viewer{
   display:none;
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.9);
+  background:rgba(0,0,0,0.95);
   z-index:2000;
   align-items:center;
   justify-content:center;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+#viewer.active{
+    display:flex;
+    opacity: 1;
 }
 #viewer iframe{
-  width:90%;
-  height:90%;
+  width:95%;
+  max-width: 1000px;
+  height:95%;
+  max-height: 800px;
   border:0;
-  background:#fff;
-  border-radius:8px;
+  background:var(--card);
+  border-radius:10px;
+  box-shadow:0 0 30px rgba(0,0,0,0.5);
+  transform: scale(0.95);
+  transition: transform .3s ease;
+}
+#viewer.active iframe{
+    transform: scale(1);
 }
 #closeViewer{
   position:absolute;
@@ -182,24 +236,29 @@ select{
   background:#ef4444;
   color:#fff;
   border:none;
-  border-radius:8px;
+  border-radius:6px;
   padding:8px 14px;
   cursor:pointer;
+  font-weight: 600;
+  opacity: 0.9;
+  transition: opacity .2s;
+}
+#closeViewer:hover{
+    opacity: 1;
 }
 
-/* Responsive */
-@media(max-width:900px){
-  .grid-container{grid-template-columns:repeat(2,1fr);}
-}
-@media(max-width:600px){
-  .grid-container{grid-template-columns:repeat(1,1fr);}
-  .thumb{height:160px;}
+/* --- 9. Responsive adjustments --- */
+@media(max-width:768px){
+  .topbar{flex-direction:column; align-items: stretch;}
+  .search input, select{width:100%;}
+  .toggle{width:100%;}
+  .thumb{height:180px;}
 }
 </style>
 </head>
 <body>
 
-<header>JKBose Helper By Aabid</header>
+<header>JKBose Helper</header>
 
 <div class="topbar">
   <div class="search">
@@ -214,10 +273,10 @@ select{
   <button class="toggle" id="modeToggle">🌙</button>
 </div>
 
-<div id="breadcrumb" style="text-align:center;font-size:13px;color:#64748b;">Home</div>
+<div id="breadcrumb" style="text-align:center;">Home</div>
 
 <div id="fileContainer" class="grid-container">
-  <div style="grid-column:span 3;text-align:center;color:#64748b;">Loading...</div>
+  <div style="grid-column:span all;text-align:center;color:#64748b;padding: 20px;">Loading...</div>
 </div>
 
 <div class="fab">
@@ -225,7 +284,6 @@ select{
   <button id="homeBtn" title="Home">🏠</button>
 </div>
 
-<!-- Viewer -->
 <div id="viewer">
   <button id="closeViewer">✖ Close</button>
   <iframe id="pdfViewer"></iframe>
@@ -235,7 +293,7 @@ select{
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
 let currentFolder = new URLSearchParams(window.location.search).get("folder");
 if(!currentFolder){
-  document.getElementById("fileContainer").innerHTML="<div style='grid-column:span 3;text-align:center;'>Add ?folder=FOLDER_ID to URL</div>";
+  document.getElementById("fileContainer").innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>Add ?folder=FOLDER_ID to URL</div>";
   throw new Error("No folder id");
 }
 let folderStack=[], allFiles=[];
@@ -254,7 +312,7 @@ const homeBtn=document.getElementById("homeBtn");
 /* Load Folder */
 async function loadFolder(id,name="Home"){
   breadcrumb.textContent=name;
-  container.innerHTML="<div style='grid-column:span 3;text-align:center;'>Loading...</div>";
+  container.innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>Loading...</div>";
   try{
     const url=`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&fields=files(id,name,mimeType,thumbnailLink)&key=${apiKey}`;
     const res=await fetch(url);
@@ -262,7 +320,7 @@ async function loadFolder(id,name="Home"){
     allFiles=data.files||[];
     renderGrid(allFiles);
   }catch(e){
-    container.innerHTML="<div style='grid-column:span 3;text-align:center;color:red;'>Error loading folder</div>";
+    container.innerHTML="<div style='grid-column:span all;text-align:center;color:red;padding: 20px;'>Error loading folder</div>";
   }
 }
 
@@ -275,11 +333,16 @@ function renderGrid(files){
     return (!q||x.name.toLowerCase().includes(q))&&(f==="all"||f===type);
   });
   container.innerHTML="";
-  if(filtered.length===0){container.innerHTML="<div style='grid-column:span 3;text-align:center;'>No items</div>";return;}
-  filtered.forEach(file=>{
+  if(filtered.length===0){container.innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>No items found matching your criteria.</div>";return;}
+  
+  // Set the container to display the files
+  filtered.forEach((file, index)=>{
     const type=getType(file.mimeType);
     const card=document.createElement("div");
     card.className="card";
+    // Apply animation delay stagger for a smoother loading effect
+    card.style.animationDelay = `${index * 0.05}s`;
+    
     const img=getThumb(file,type);
     card.innerHTML=`
       <div class="thumb"><img src="${img}" alt="${file.name}"></div>
@@ -297,16 +360,17 @@ function getType(mime){
   return"file";
 }
 function getThumb(f,type){
+  // Use a softer blue for folder and a light red for PDF icons
   if(type==="folder")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#bfdbfe'/><text x='50' y='50' font-size='40' text-anchor='middle'>📁</text></svg>`);
-  if(type==="pdf")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#fecaca'/><text x='50' y='50' font-size='40' text-anchor='middle'>📄</text></svg>`);
+  if(type==="pdf")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#fee2e2'/><text x='50' y='50' font-size='40' text-anchor='middle'>📄</text></svg>`);
   if(type==="image")return f.thumbnailLink||`https://drive.google.com/uc?id=${f.id}`;
-  return f.thumbnailLink||"https://via.placeholder.com/100";
+  return f.thumbnailLink||"https://via.placeholder.com/140?text=File";
 }
 
-/* Open item */
+/* Open item - Added 'active' class for viewer animation */
 function openItem(file,type){
   if(type==="folder"){folderStack.push(currentFolder);currentFolder=file.id;loadFolder(file.id,file.name);return;}
-  viewer.style.display="flex";
+  viewer.classList.add("active");
   pdfViewer.src=`https://drive.google.com/file/d/${file.id}/preview`;
 }
 
@@ -319,8 +383,8 @@ backBtn.onclick=()=>{
 };
 homeBtn.onclick=()=>{location.href=location.pathname+"?folder="+(new URLSearchParams(window.location.search).get("folder"));};
 
-/* Close viewer */
-closeViewer.onclick=()=>{viewer.style.display="none";pdfViewer.src="";};
+/* Close viewer - Removed 'display:flex' from JS, relying on 'active' class */
+closeViewer.onclick=()=>{viewer.classList.remove("active");pdfViewer.src="";};
 
 /* Search + Filter */
 searchBox.oninput=()=>renderGrid(allFiles);

@@ -11,7 +11,7 @@
   --primary: #1B2E8D; /* Deep Indigo - Header, FAB */
   --accent: #A855F7;
   --bg: #E6E6F2;     /* Light Lavender - Main Background */
-  --card: #FFFFFF;   /* White - Cards */
+  --card: #E6E6F2;   /* White - Cards */
   --card-bg-light: #C5CAE8; /* Medium Lavender - Used for subtle depth (Light Mode Controls BG) */
   --text: #1f2937;
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -319,7 +319,6 @@ select{
 </head>
 <body>
 
-<header>JKBose Helper</header>
 
 <div class="topbar">
   <div class="search">
@@ -358,7 +357,7 @@ select{
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
 let currentFolder = new URLSearchParams(window.location.search).get("folder");
 if(!currentFolder){
-  document.getElementById("fileContainer").innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>Add ?folder=FOLDER_ID to URL</div>";
+  document.getElementById("fileContainer").innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>Data Not Showing</div>";
   throw new Error("No folder id");
 }
 let folderStack=[], allFiles=[];

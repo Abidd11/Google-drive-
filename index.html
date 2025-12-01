@@ -182,9 +182,7 @@ select{
   font-size:16px;
   font-weight:700;
   color:var(--primary);
-  text-overflow:ellipsis;
-  overflow:hidden;
-  white-space:nowrap;
+  /* REMOVED: text-overflow:ellipsis; overflow:hidden; white-space:nowrap; */
 }
 .card p{
   font-size:13px;
@@ -388,7 +386,7 @@ async function loadFolder(id,name="Home"){
   }
 }
 
-/* Render */
+/* Render - FIXED to use <marquee> for titles */
 function renderGrid(files){
   const q=searchBox.value.toLowerCase();
   const f=filterType.value;
@@ -408,9 +406,17 @@ function renderGrid(files){
     card.style.animationDelay = `${index * 0.05}s`;
     
     const img=getThumb(file,type);
+    
+    // --- MARQUEE IMPLEMENTATION START ---
+    // The h4 tag now wraps the title inside a <marquee> tag.
     card.innerHTML=`
       <div class="thumb"><img src="${img}" alt="${file.name}"></div>
-      <div class="card-body"><h4>${file.name}</h4><p>${type.toUpperCase()}</p></div>`;
+      <div class="card-body">
+        <h4><marquee behavior="scroll" direction="left" scrollamount="3">${file.name}</marquee></h4>
+        <p>${type.toUpperCase()}</p>
+      </div>`;
+    // --- MARQUEE IMPLEMENTATION END ---
+
     card.onclick=()=>openItem(file,type);
     container.appendChild(card);
   });

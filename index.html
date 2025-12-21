@@ -1,484 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>JKBose Helper</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-/* --- 1. Root Variables & New Colors --- */
-:root{
-  --primary: #1B2E8D; /* Deep Indigo - Header, FAB */
-  --accent: #A855F7;
-  --bg: #E6E6F2;     /* Light Lavender - Main Background */
-  --card: #E6E6F2;   /* White - Cards */
-  --card-bg-light: #C5CAE8; /* Medium Lavender - Used for subtle depth (Light Mode Controls BG) */
-  --text: #1f2937;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-/* Dark Mode Colors */
-body.dark{
-  --primary: #60a5fa; /* Lighter blue for Dark Mode accent */
-  --accent: #c084fc;
-  --bg: #1f2937;     /* Dark Gray/Blue Background */
-  --card: #374151;   /* Slightly lighter Dark Card */
-  --card-bg-light: #4b5563; /* Dark Mode Controls BG */
-  --text: #f3f4f6;
-}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>JKBose Helper - File Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1B2E8D;
+            --accent: #A855F7;
+            --bg: #E6E6F2;
+            --card: #FFFFFF;
+            --card-bg-light: #C5CAE8;
+            --text: #1f2937;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
 
-/* --- 2. Base Styles --- */
-body{
-  margin:0;
-  font-family: 'Poppins', sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  transition:background .4s ease,color .4s ease;
-}
+        body.dark {
+            --primary: #60a5fa;
+            --bg: #1f2937;
+            --card: #374151;
+            --card-bg-light: #4b5563;
+            --text: #f3f4f6;
+        }
 
-/* --- 3. Header --- */
-header{
-  background:var(--primary);
-  color:#fff;
-  text-align:center;
-  padding:20px 16px;
-  font-weight:700;
-  font-size:22px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.2);
-  letter-spacing:1px;
-}
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: all .3s ease;
+        }
 
-/* --- 4. Top Controls (Topbar) - SINGLE LINE & DARK MODE AWARE --- */
-.topbar{
-  display:flex;
-  flex-wrap: nowrap; /* Prevent wrapping unless absolutely necessary */
-  justify-content: space-between; /* Space out items */
-  gap:10px;
-  padding:16px 20px;
-  background:var(--card);
-  box-shadow:var(--shadow-sm);
-  margin-bottom: 15px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  align-items: center;
-}
-.search{
-    flex-grow: 1; /* Search bar takes most space */
-    min-width: 100px; /* Reduced min-width for small screens */
-}
-.search input, select, .toggle{
-  padding:12px 18px;
-  border-radius:12px;
-  border:none;
-  font-size:14px;
-  outline:none;
-  color:var(--text);
-  transition:all .3s;
-  height: 44px;
-  box-sizing: border-box;
-  
-  /* Inherit Dark Mode color for controls */
-  background:var(--card-bg-light); 
-}
-.search input{
-    width: 100%;
-}
-.search input:focus, select:focus{
-  background:var(--card);
-  box-shadow:0 0 0 3px var(--primary);
-}
-select{
-  flex-shrink: 0;
-  min-width: 120px; /* Smallest comfortable width for filter */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  padding-right: 35px;
-  /* Dark Mode compatible SVG for dropdown arrow */
-  background: var(--card-bg-light) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='gray'><path fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /></svg>") no-repeat right 10px center;
-  background-size: 18px;
-}
-.toggle{
-  flex-shrink: 0;
-  min-width: 44px;
-  width: 44px;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.toggle:hover{
-  background:var(--primary);
-  color:#fff;
-  transform: translateY(-1px);
-}
+        header {
+            background: var(--primary);
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+            font-weight: 700;
+            font-size: 20px;
+        }
 
-/* Breadcrumb Styling */
-#breadcrumb{
-  padding: 10px 20px;
-  font-size:14px !important;
-  color:#4b5563 !important;
-  font-weight: 500;
-  text-align: left !important;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--card);
+            max-width: 1200px;
+            margin: 15px auto;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
 
-/* --- 5. Grid Layout and Animation --- */
-.grid-container{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:20px;
-  padding:20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.card{
-  animation:fadeInUp .4s ease backwards;
-}
+        .search { flex-grow: 1; }
+        .search input, select, .toggle {
+            background: var(--card-bg-light);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 13px;
+            color: var(--text);
+            outline: none;
+            height: 40px;
+        }
+        .search input { width: 100%; }
 
-@keyframes fadeInUp{
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
-}
+        #breadcrumb {
+            padding: 0 20px;
+            font-size: 13px;
+            color: #6b7280;
+            max-width: 1200px;
+            margin: 0 auto 10px;
+        }
 
-/* --- 6. Card Styles and Interactions --- */
-.card{
-  background:var(--card);
-  border-radius:16px;
-  box-shadow:var(--shadow-md);
-  transition:transform .3s ease, box-shadow .3s ease;
-  cursor:pointer;
-  overflow:hidden;
-}
-.card:hover{
-  transform:translateY(-10px) scale(1.02);
-  box-shadow:var(--shadow-lg);
-}
-.thumb{
-  height:160px;
-  background:var(--card-bg-light);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-.thumb img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transition: transform 0.4s ease;
-}
-.card:hover .thumb img{
-  transform: scale(1.05);
-}
-.card-body{
-  padding:15px;
-}
-.card h4{
-  margin:0;
-  font-size:16px;
-  font-weight:700;
-  color:var(--primary);
-  /* REMOVED: text-overflow:ellipsis; overflow:hidden; white-space:nowrap; */
-}
-.card p{
-  font-size:13px;
-  color:#6b7280;
-  margin-top:4px;
-  font-weight: 500;
-}
+        /* --- Grid & Cards --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            padding: 0 20px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-/* --- 7. Floating Action Buttons (FAB) --- */
-.fab{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  z-index:1000;
-}
-.fab button{
-  border:none;
-  padding:16px;
-  border-radius:50%;
-  background:var(--primary);
-  color:#fff;
-  font-size:20px;
-  cursor:pointer;
-  box-shadow:0 6px 16px rgba(27, 46, 141, 0.4);
-  transition:transform .3s ease, box-shadow .3s ease;
-}
-.fab button:hover{
-  transform:scale(1.15) rotate(5deg);
-}
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s;
+            animation: fadeInUp 0.4s ease backwards;
+        }
+        .card:hover { transform: translateY(-5px); }
 
-/* --- 8. Viewer and Floating Viewer Back Button --- */
-#viewer{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.95);
-  z-index:2000;
-  align-items:center;
-  justify-content:center;
-  opacity: 0;
-  transition: opacity .3s ease;
-}
-#viewer.active{
-    display:flex;
-    opacity: 1;
-}
-#viewer iframe{
-  width:95%;
-  max-width: 1200px;
-  height:95%;
-  max-height: 900px;
-  border:0;
-  background:var(--card);
-  border-radius:10px;
-  box-shadow:0 0 30px rgba(0,0,0,0.5);
-  transform: scale(0.95);
-  transition: transform .3s ease;
-}
-#viewer.active iframe{
-    transform: scale(1);
-}
+        .thumb {
+            height: 120px;
+            background: var(--card-bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-/* FLOATING BACK BUTTON STYLES (Inside Viewer) */
-#closeViewer{
-  position:absolute;
-  bottom: 20px;
-  left: 20px;
-  right: auto;
-  top: auto;
-  
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  border-radius:12px;
-  padding:10px 18px;
-  cursor:pointer;
-  font-weight: 600;
-  font-size: 16px;
-  opacity: 0.9;
-  z-index: 2001;
-  
-  transition: opacity .2s, background .3s, transform .3s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  box-shadow: 0 4px 12px rgba(27, 46, 141, 0.4);
-}
-#closeViewer:hover{
-    opacity: 1;
-    background: #0e1e69;
-    transform: translateY(-2px);
-}
+        .card-body { padding: 12px; min-height: 85px; }
+        
+        /* Small and Full Title Styling */
+        .card h4 {
+            margin: 0;
+            font-size: 12.5px; /* Small Size */
+            font-weight: 600;
+            color: var(--primary);
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Show up to 3 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word; /* Ensure full visibility of long words */
+        }
 
-/* --- 9. Responsive adjustments for smaller screens --- */
-@media(max-width: 768px) {
-  /* Ensure the single line is maintained on small screens by allowing shrinking */
-  .topbar {
-    flex-wrap: nowrap; /* Keep it on one line */
-    gap: 5px; /* Tighter gap */
-    padding: 15px 15px;
-  }
-  .search {
-    min-width: 50px; /* Allow search to shrink more */
-  }
-  .search input {
-    padding: 10px 14px; /* Slightly smaller padding */
-    font-size: 13px;
-  }
-  select {
-    min-width: 40px;
-    padding: 10px 5px 10px 10px; /* Adjusted padding for tighter fit */
-    font-size: 13px;
-  }
-  .toggle {
-    min-width: 40px;
-    width: 40px;
-  }
-  
-  .grid-container{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
-  .fab button {padding: 12px; font-size: 18px;}
-  #closeViewer {
-    bottom: 10px;
-    left: 10px;
-    padding: 8px 14px;
-    font-size: 14px;
-  }
-}
-</style>
+        .card p {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 5px;
+            font-weight: 700;
+        }
+
+        /* --- FAB & Viewer --- */
+        .fab { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        .fab button { border: none; width: 50px; height: 50px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 18px; cursor: pointer; box-shadow: var(--shadow-md); }
+
+        #viewer { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; }
+        #viewer.active { display: flex; }
+        #viewer iframe { width: 95%; height: 90%; background: #fff; border-radius: 10px; }
+        #closeViewer { position: absolute; bottom: 20px; left: 20px; background: var(--primary); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media(max-width: 480px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 10px 80px; }
+            .topbar { margin: 10px; padding: 8px; }
+        }
+    </style>
 </head>
 <body>
 
+<header>JKBOSE HELPER</header>
 
 <div class="topbar">
-  <div class="search">
-    <input id="searchBox" type="text" placeholder="Search files...">
-  </div>
-  
-  <select id="filterType">
-    <option value="all">All</option>
-    <option value="folder">Folders</option>
-    <option value="pdf">PDFs</option>
-    <option value="image">Images</option>
-  </select>
-  
-  <button class="toggle" id="modeToggle" title="Toggle Dark Mode">🌙</button>
+    <div class="search"><input id="searchBox" type="text" placeholder="Search..."></div>
+    <select id="filterType">
+        <option value="all">All</option>
+        <option value="folder">Folders</option>
+        <option value="pdf">PDFs</option>
+    </select>
+    <button class="toggle" id="modeToggle">🌙</button>
 </div>
 
 <div id="breadcrumb">Home</div>
-
-<div id="fileContainer" class="grid-container">
-  <div style="grid-column:span all;text-align:center;color:#4b5563;padding: 20px;">Loading...</div>
-</div>
+<div id="fileContainer" class="grid-container"></div>
 
 <div class="fab">
-  <button id="backBtn" title="Go Back">⬅</button>
-  <button id="homeBtn" title="Home">🏠</button>
+    <button id="backBtn"><i class="fas fa-arrow-left"></i></button>
+    <button id="homeBtn"><i class="fas fa-home"></i></button>
 </div>
 
 <div id="viewer">
-  <button id="closeViewer" title="Go back to file list">
-    <span style="font-size: 1.2em;">&larr;</span> Back
-  </button>
-  <iframe id="pdfViewer"></iframe>
+    <button id="closeViewer">Close Viewer</button>
+    <iframe id="pdfViewer"></iframe>
 </div>
 
 <script>
 const apiKey = "AIzaSyA1GEi8WL-ztLznZSP6y1qfPKyImhAPVuU";
-let currentFolder = new URLSearchParams(window.location.search).get("folder");
-if(!currentFolder){
-  document.getElementById("fileContainer").innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>Data Not Showing</div>";
-  throw new Error("No folder id");
-}
-let folderStack=[], allFiles=[];
+const urlParams = new URLSearchParams(window.location.search);
+let currentFolder = urlParams.get("folder");
+let folderStack = [], allFiles = [];
 
-const container=document.getElementById("fileContainer");
-const breadcrumb=document.getElementById("breadcrumb");
-const searchBox=document.getElementById("searchBox");
-const filterType=document.getElementById("filterType");
-const viewer=document.getElementById("viewer");
-const pdfViewer=document.getElementById("pdfViewer");
-const closeViewer=document.getElementById("closeViewer");
-const modeToggle=document.getElementById("modeToggle");
-const backBtn=document.getElementById("backBtn");
-const homeBtn=document.getElementById("homeBtn");
+const container = document.getElementById("fileContainer");
+const breadcrumb = document.getElementById("breadcrumb");
+const searchBox = document.getElementById("searchBox");
+const filterType = document.getElementById("filterType");
+const viewer = document.getElementById("viewer");
+const pdfViewer = document.getElementById("pdfViewer");
+const modeToggle = document.getElementById("modeToggle");
 
-/* Load Folder */
-async function loadFolder(id,name="Home"){
-  breadcrumb.textContent=name;
-  container.innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>Loading...</div>";
-  try{
-    const url=`https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&fields=files(id,name,mimeType,thumbnailLink)&key=${apiKey}`;
-    const res=await fetch(url);
-    const data=await res.json();
-    allFiles=data.files||[];
-    renderGrid(allFiles);
-  }catch(e){
-    container.innerHTML="<div style='grid-column:span all;text-align:center;color:red;padding: 20px;'>Error loading folder</div>";
-  }
+async function loadFolder(id, name = "Home") {
+    breadcrumb.textContent = `Path: ${name}`;
+    container.innerHTML = "<div>Loading...</div>";
+    try {
+        const url = `https://www.googleapis.com/drive/v3/files?q='${id}'+in+parents+and+trashed=false&fields=files(id,name,mimeType,thumbnailLink)&key=${apiKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        allFiles = data.files || [];
+        renderGrid(allFiles);
+    } catch (e) {
+        container.innerHTML = "<div>Error loading files.</div>";
+    }
 }
 
-/* Render - FIXED to use <marquee> for titles */
-function renderGrid(files){
-  const q=searchBox.value.toLowerCase();
-  const f=filterType.value;
-  const filtered=files.filter(x=>{
-    const type=getType(x.mimeType);
-    return (!q||x.name.toLowerCase().includes(q))&&(f==="all"||f===type);
-  });
-  container.innerHTML="";
-  if(filtered.length===0){container.innerHTML="<div style='grid-column:span all;text-align:center;padding: 20px;'>No items found matching your criteria.</div>";return;}
-  
-  // Set the container to display the files
-  filtered.forEach((file, index)=>{
-    const type=getType(file.mimeType);
-    const card=document.createElement("div");
-    card.className="card";
-    // Apply animation delay stagger for a smoother loading effect
-    card.style.animationDelay = `${index * 0.05}s`;
-    
-    const img=getThumb(file,type);
-    
-    // --- MARQUEE IMPLEMENTATION START ---
-    // The h4 tag now wraps the title inside a <marquee> tag.
-    card.innerHTML=`
-      <div class="thumb"><img src="${img}" alt="${file.name}"></div>
-      <div class="card-body">
-        <h4><marquee behavior="scroll" direction="left" scrollamount="3">${file.name}</marquee></h4>
-        <p>${type.toUpperCase()}</p>
-      </div>`;
-    // --- MARQUEE IMPLEMENTATION END ---
+function renderGrid(files) {
+    const q = searchBox.value.toLowerCase();
+    const f = filterType.value;
+    const filtered = files.filter(x => {
+        const type = getType(x.mimeType);
+        return (!q || x.name.toLowerCase().includes(q)) && (f === "all" || f === type);
+    });
 
-    card.onclick=()=>openItem(file,type);
-    container.appendChild(card);
-  });
+    container.innerHTML = "";
+    filtered.forEach((file, i) => {
+        const type = getType(file.mimeType);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.animationDelay = `${i * 0.03}s`;
+        
+        const img = type === "folder" ? "https://cdn-icons-png.flaticon.com/512/716/716784.png" : 
+                    type === "pdf" ? "https://cdn-icons-png.flaticon.com/512/337/337946.png" : (file.thumbnailLink || "");
+
+        card.innerHTML = `
+            <div class="thumb"><img src="${img}"></div>
+            <div class="card-body">
+                <h4>${file.name}</h4>
+                <p>${type.toUpperCase()}</p>
+            </div>`;
+        card.onclick = () => openItem(file, type);
+        container.appendChild(card);
+    });
 }
 
-/* Helpers */
-function getType(mime){
-  if(mime==="application/vnd.google-apps.folder")return"folder";
-  if(mime.includes("pdf"))return"pdf";
-  if(mime.startsWith("image/"))return"image";
-  return"file";
-}
-function getThumb(f,type){
-  // Updated SVG colors to match the new light palette
-  if(type==="folder")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#C5CAE8'/><text x='50' y='50' font-size='40' text-anchor='middle'>📁</text></svg>`);
-  if(type==="pdf")return"data:image/svg+xml;utf8,"+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'><rect width='100' height='80' rx='10' fill='#C5CAE8'/><text x='50' y='50' font-size='40' text-anchor='middle'>📄</text></svg>`);
-  if(type==="image")return f.thumbnailLink||`https://drive.google.com/uc?id=${f.id}`;
-  return f.thumbnailLink||"https://via.placeholder.com/140?text=File";
+function getType(mime) {
+    if (mime === "application/vnd.google-apps.folder") return "folder";
+    if (mime.includes("pdf")) return "pdf";
+    return "file";
 }
 
-/* Open item - Fixed PDF Viewer with the Docs Viewer URL */
-function openItem(file,type){
-  if(type==="folder"){folderStack.push(currentFolder);currentFolder=file.id;loadFolder(file.id,file.name);return;}
-  
-  viewer.classList.add("active");
-  
-  if(type==="pdf"){
-      // Uses Google Docs Viewer which is more reliable for embedding public PDFs.
-      pdfViewer.src=`https://docs.google.com/gview?url=https://drive.google.com/uc?id=${file.id}&embedded=true`;
-  } else {
-      // Use the standard Google Drive preview for other file types/images
-      pdfViewer.src=`https://drive.google.com/file/d/${file.id}/preview`;
-  }
+function openItem(file, type) {
+    if (type === "folder") {
+        folderStack.push(currentFolder);
+        currentFolder = file.id;
+        loadFolder(file.id, file.name);
+    } else {
+        viewer.classList.add("active");
+        pdfViewer.src = `https://docs.google.com/gview?url=https://drive.google.com/uc?id=${file.id}&embedded=true`;
+    }
 }
 
-/* Back + Home */
-backBtn.onclick=()=>{
-  if(folderStack.length>0){
-    currentFolder=folderStack.pop();
-    loadFolder(currentFolder,"Back");
-  }
-};
-homeBtn.onclick=()=>{location.href=location.pathname+"?folder="+(new URLSearchParams(window.location.search).get("folder"));};
+document.getElementById("closeViewer").onclick = () => { viewer.classList.remove("active"); pdfViewer.src = ""; };
+document.getElementById("backBtn").onclick = () => { if (folderStack.length > 0) { currentFolder = folderStack.pop(); loadFolder(currentFolder, "Back"); } };
+document.getElementById("homeBtn").onclick = () => { location.reload(); };
+searchBox.oninput = () => renderGrid(allFiles);
+filterType.onchange = () => renderGrid(allFiles);
 
-/* Close viewer */
-closeViewer.onclick=()=>{viewer.classList.remove("active");pdfViewer.src="";};
-
-/* Search + Filter */
-searchBox.oninput=()=>renderGrid(allFiles);
-filterType.onchange=()=>renderGrid(allFiles);
-
-/* Dark Mode */
-if(localStorage.getItem("theme")==="dark"){document.body.classList.add("dark");modeToggle.textContent="☀️";}
-modeToggle.onclick=()=>{
-  document.body.classList.toggle("dark");
-  const dark=document.body.classList.contains("dark");
-  modeToggle.textContent=dark?"☀️":"🌙";
-  localStorage.setItem("theme",dark?"dark":"light");
+modeToggle.onclick = () => {
+    document.body.classList.toggle("dark");
+    modeToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
 };
 
-/* Start */
-loadFolder(currentFolder);
+if (currentFolder) loadFolder(currentFolder);
+else container.innerHTML = "<div>No Folder ID provided in URL.</div>";
 </script>
 </body>
 </html>
